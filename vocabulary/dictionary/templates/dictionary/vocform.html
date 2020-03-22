@@ -1,0 +1,17 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Adding a word
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% endblock %}
+
+{% block body %}
+<form action="/add/" method="post">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<button type="submit" class="btn btn-success">Add the new word</button>
+</form>
+{% endblock %}
