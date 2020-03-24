@@ -11,6 +11,17 @@ Adding a word
 {% block body %}
 <form action="/add/" method="post">
 	{% csrf_token %}
+	<div class="row">
+      <div class="col-2">
+        {{ formA.gender|as_crispy_field }}
+      </div>
+      <div class="col-6">
+        {{ formA.word|as_crispy_field }}
+      </div>
+	  <div class="col-4">
+        {{ formA.language|as_crispy_field }}
+      </div>
+    </div>
 	{{ form|crispy }}
 	<button type="submit" class="btn btn-success">Add the new word</button>
 </form>
