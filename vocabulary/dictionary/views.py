@@ -7,14 +7,14 @@ from django.http import HttpResponse
 
 def home(request):
     return HttpResponse('Hello, World!')
-"""
+
 class Entry:
     
-    def __init__(word,article,lng):
+    def __init__(self,word,article,lng):
         self.word = word
         self.article = article
         self.lng = lng
-"""
+
 def translationform(request):
     form = None
     #if form is submitted
@@ -28,8 +28,8 @@ def translationform(request):
         formB = forms.WordForm(prefix="translate")
         
         #words = models.Word.objects.all()
-        words = {0:"word",1:"wordb"}
-        #words = {0:{"word","article","lng"},1:{"wordb","articleb","lngb"}}
+        #words = {0:"word",1:"wordb"}
+        words = {0:["Schwierigkeit",2,2],1:["difficulty",4,1]}
         print(words)
         
     #returning form 

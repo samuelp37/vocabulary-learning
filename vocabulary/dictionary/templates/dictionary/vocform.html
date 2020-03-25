@@ -17,6 +17,7 @@ $(document).ready(function(){
 	input = document.getElementById('id_original-word');
 	filter = input.value.toUpperCase();
 	ul = document.getElementById("list_words");
+	ul.style.display = "block";
 	li = ul.getElementsByTagName('li');
   
     for (i = 0; i < li.length; i++) {
@@ -32,9 +33,16 @@ $(document).ready(function(){
   });
 });
 
-function choose(){
+function choose(word,gender,lng){
 
-	console.log("Have been called");
+	document.getElementById("id_original-word").value = String(word);
+	document.getElementById("id_original-gender").value = gender;
+	document.getElementById("id_original-language").value = lng;
+	console.log("Have been called : "+String(word));
+	
+	listwords = document.getElementById('list_words');
+	listwords.style.display = "None";
+	
 	return;
 
 }
@@ -58,9 +66,9 @@ function choose(){
 			{{ formA.language|as_crispy_field }}
 		  </div>
 		</div>
-	<ul id="list_words" class="list-group">
+	<ul id="list_words" class="list-group" style="display:none">
 	  {% for key, values in words.items %}
-		<li class="list-group-item" onClick="choose();">{{ values }}</li>
+		<li class="list-group-item" onClick="choose('{{ values.0 }}',{{ values.1}} , {{ values.2 }});">{{ values.0 }}</li>
 	  {% endfor %}
 	</ul>
 	</fieldset>
