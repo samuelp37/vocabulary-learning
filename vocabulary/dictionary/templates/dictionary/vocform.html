@@ -6,22 +6,79 @@ Adding a word
 
 {% block libraries %}
 {% load crispy_forms_tags %}
+
+{{ words|json_script:"words_list" }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+  $("#id_original-word").on("keyup", function() {
+  
+	var input, filter, ul, li, a, i, txtValue;
+	input = document.getElementById('id_original-word');
+	filter = input.value.toUpperCase();
+	ul = document.getElementById("list_words");
+	li = ul.getElementsByTagName('li');
+  
+    for (i = 0; i < li.length; i++) {
+      a = li[i];
+      txtValue = a.textContent || a.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        li[i].style.display = "";
+      } else {
+        li[i].style.display = "none";
+      }
+    }
+  
+  });
+});
+
+function choose(){
+
+	console.log("Have been called");
+	return;
+
+}
+</script>
+
 {% endblock %}
 
 {% block body %}
 <form action="/add/" method="post">
 	{% csrf_token %}
-	<div class="row">
-      <div class="col-2">
-        {{ formA.gender|as_crispy_field }}
-      </div>
-      <div class="col-6">
-        {{ formA.word|as_crispy_field }}
-      </div>
-	  <div class="col-4">
-        {{ formA.language|as_crispy_field }}
-      </div>
-    </div>
+	<fieldset>
+		<legend>Original word</legend>
+		<div class="row">
+		  <div class="col-6">
+			{{ formA.word|as_crispy_field }}
+		  </div>
+		  <div class="col-2">
+			{{ formA.gender|as_crispy_field }}
+		  </div>
+		  <div class="col-4">
+			{{ formA.language|as_crispy_field }}
+		  </div>
+		</div>
+	<ul id="list_words" class="list-group">
+	  {% for key, values in words.items %}
+		<li class="list-group-item" onClick="choose();">{{ values }}</li>
+	  {% endfor %}
+	</ul>
+	</fieldset>
+	<br>
+	<fieldset>
+		<legend>Translated word</legend>
+		<div class="row">
+		  <div class="col-6">
+			{{ formB.word|as_crispy_field }}
+		  </div>
+		  <div class="col-2">
+			{{ formB.gender|as_crispy_field }}
+		  </div>
+		  <div class="col-4">
+			{{ formB.language|as_crispy_field }}
+		  </div>
+		</div>
+	</fieldset>
 	{{ form|crispy }}
 	<button type="submit" class="btn btn-success">Add the new word</button>
 </form>

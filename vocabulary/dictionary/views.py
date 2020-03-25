@@ -1,13 +1,20 @@
 from django.shortcuts import render
 from . import forms
 from django.views.generic.list import ListView
-#from .models import Lecture
+from . import models
 from django.http import HttpResponse
 
 
 def home(request):
     return HttpResponse('Hello, World!')
-
+"""
+class Entry:
+    
+    def __init__(word,article,lng):
+        self.word = word
+        self.article = article
+        self.lng = lng
+"""
 def translationform(request):
     form = None
     #if form is submitted
@@ -17,11 +24,16 @@ def translationform(request):
     else:
         #creating a new form
         form = forms.TranslationForm()
-        formA = forms.WordForm()
-        formB = forms.WordForm()
+        formA = forms.WordForm(prefix="original")
+        formB = forms.WordForm(prefix="translate")
+        
+        #words = models.Word.objects.all()
+        words = {0:"word",1:"wordb"}
+        #words = {0:{"word","article","lng"},1:{"wordb","articleb","lngb"}}
+        print(words)
         
     #returning form 
-    return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB})
+    return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words})
 
 """
 class LecturesListView(ListView):
