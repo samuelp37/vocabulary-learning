@@ -29,7 +29,10 @@ def translationform(request):
         
         #words = models.Word.objects.all()
         #words = {0:"word",1:"wordb"}
-        words = {0:["Schwierigkeit",2,2],1:["difficulty",4,1]}
+        words = {}
+        for i in range(15):
+            words[i] = ["Schwierigkeit",2,2];
+        #words = {0:["Schwierigkeit",2,2],1:["difficulty",4,1]}
         print(words)
         
     #returning form 
