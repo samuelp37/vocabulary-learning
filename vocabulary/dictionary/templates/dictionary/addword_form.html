@@ -1,0 +1,24 @@
+{% load crispy_forms_tags %}
+
+<div class="adding_word">
+	<fieldset>
+		<legend>{{ form.title }}</legend>
+		<div class="row">
+		  <div class="col-6">
+			{{ form.word|as_crispy_field }}
+		  </div>
+		  <div class="col-2">
+			{{ form.gender|as_crispy_field }}
+		  </div>
+		  <div class="col-4">
+			{{ form.language|as_crispy_field }}
+		  </div>
+		</div>
+		<ul class="list-group list_words" style="display:none">
+		  {% for key, values in words.items %}
+			<li class="list-group-item" onClick="choose(this,'id_{{ form.prefix }}','{{ values.0 }}',{{ values.1}} , {{ values.2 }});">{{ values.0 }}</li>
+		  {% endfor %}
+		</ul>
+	</fieldset>
+</div>
+<br>

@@ -1,5 +1,6 @@
 from dictionary.models import Translation, Word
 from django.forms import ModelForm, Textarea
+from django.contrib.admin import widgets 
 
 class TranslationForm(ModelForm):
 
