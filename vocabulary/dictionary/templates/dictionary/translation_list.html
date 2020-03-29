@@ -1,0 +1,34 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Lectures list
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% endblock %}
+
+{% block body %}
+	<h1>Translations</h1>
+	<br>
+	<table class="table">
+	  <thead class="thead-dark">
+		<tr>
+		  <th scope="col">Original word</th>
+		  <th scope="col">Translated word</th>
+		  <th scope="col">Added on</th>
+		</tr>
+	  </thead>
+	  <tbody>
+		  {% for translation in object_list %}
+		  <tr>
+			  <td>{{ translation.original_word.word }} ({{ translation.original_word.gender }})</td>
+			  <td>{{ translation.translated_word.word }} ({{ translation.translated_word.gender.short }})</td>
+			  <td>{{ translation.date_added|date:'d/m/Y' }}</td>
+		  </tr>
+		  {% empty %}
+		  No translations yet.
+	      {% endfor %}
+      </tbody>
+	</table>
+{% endblock %}

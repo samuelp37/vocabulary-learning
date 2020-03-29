@@ -1,0 +1,24 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Lectures list
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% endblock %}
+
+{% block body %}
+	<h1>Books</h1>
+	<br>
+	{% for book in object_list %}
+		<a href="{% url 'details_book' slug=book.slug %}">
+			<li class="list-group-item d-flex justify-content-between align-items-center">
+				{{ book.title }} ({{ book.author.first_name }} {{ book.author.last_name }})
+				<span class="badge badge-primary badge-pill">{{ book.nb_translations }}</span>
+			</li>
+		</a>
+	{% empty %}
+		<li>No lectures yet.</li>
+	{% endfor %}
+{% endblock %}

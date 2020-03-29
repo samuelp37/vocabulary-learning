@@ -26,7 +26,14 @@ Adding a translation
 
 {% block body %}
 
+<h1>Add a translation</h1>
+<br>
+
+{% if slug %}
+<form action="{% url 'add_word_book' slug=slug %}" method="post">
+{% else %}
 <form action="{% url 'add' %}" method="post">
+{% endif %}
 	{% csrf_token %}
 	{% include "dictionary/addword_form.html" with form=formA %}    
 	{% include "dictionary/addword_form.html" with form=formB %}  

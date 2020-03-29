@@ -1,0 +1,54 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Lectures list
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% endblock %}
+
+{% block body %}
+	<h1>{{ book.title }}</h1>
+	<br>
+	<h2>Main information :</h2>
+	<br>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Subtitle : {{ book.subtitle }}
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Author : {{ book.author.first_name }} {{ book.author.last_name }}
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Number of pages : {{ book.nb_pages }}
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Language : {{ book.language.name }}
+	</li>
+	<br>
+	<h2>Words :</h2>
+	<a href="{% url 'add_word_book' slug=book.slug %}">
+		<button type="submit" class="btn btn-success">Add a new word</button>
+	</a>
+	<br><br>
+	<table class="table">
+	  <thead class="thead-dark">
+		<tr>
+		  <th scope="col">Original word</th>
+		  <th scope="col">Translated word</th>
+		  <th scope="col">Added on</th>
+		</tr>
+	  </thead>
+	  <tbody>
+		  {% for translation in book.translations.all %}
+		  <tr>
+			  <td>{{ translation.original_word.word }} ({{ translation.original_word.gender }})</td>
+			  <td>{{ translation.translated_word.word }} ({{ translation.translated_word.gender.short }})</td>
+			  <td>{{ translation.date_added|date:'d/m/Y' }}</td>
+		  </tr>
+		  {% empty %}
+		  No translations yet.
+	      {% endfor %}
+      </tbody>
+	</table>
+{% endblock %}

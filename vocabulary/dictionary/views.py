@@ -1,20 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from . import forms
 from django.views.generic.list import ListView
+from django.views.generic import DetailView
 from . import models
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 import random
 import string
+from django.utils.text import slugify
+from django.urls import reverse
 
 def home(request):
     return HttpResponse('Hello, World!')
-
-class Entry:
-    
-    def __init__(self,word,article,lng):
-        self.word = word
-        self.article = article
-        self.lng = lng
         
 def random_str(n):
     return ''.join(random.choice(string.ascii_letters) for x in range(n))
@@ -34,6 +30,7 @@ def addbookform(request):
             if form.is_valid():
                 book = form.save(commit=False)
                 book.author = authorA
+                book.slug = slugify(book.title)
                 book.save()
             else:
                 print(form.cleaned_data)
@@ -61,8 +58,8 @@ def addbookform(request):
     #returning form 
     return render(request, 'dictionary/bookform.html', {'form':form,'formA':formA,'authors':authors,'target_words_input_id':target_words_input_id})
 
-
-def translationform(request):
+def translationform(request,slug=None):
+    print(slug)
     form = None
     #if form is submitted
     if request.method == 'POST':
@@ -82,11 +79,20 @@ def translationform(request):
                 translate = form.save(commit=False)
                 translate.original_word = wordA
                 translate.translated_word = wordB
-                translate.save()
+                translate_item = translate.save()
+                
+                if slug!=None:
+                    book = get_object_or_404(models.Book, slug=slug)
+                    translation_link = models.TranslationLink()
+                    translation_link.item = translate
+                    translation_link.book = book
+                    id_translationlink = translation_link.save()
+                    return HttpResponseRedirect(reverse('details_book', kwargs={'slug':slug}))
             else:
                 print(form.cleaned_data)
                 print(form.non_field_errors())
                 print([ (field.label, field.errors) for field in form])
+           
         else:
             print(formA.cleaned_data)
             print(formA.non_field_errors())
@@ -109,7 +115,35 @@ def translationform(request):
         words[i] = [word_tmp.word,word_tmp.gender.id,word_tmp.language.id]
         
     #returning form 
-    return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words,'target_words_input_id':target_words_input_id})
+    return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words,'target_words_input_id':target_words_input_id,'slug':slug})
+
+class BooksListView(ListView):
+
+	model = models.Book
+	paginate_by = 10  # if pagination is desired
+	template_name = "dictionary/books_list.html"
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		return context
+
+class TranslationListView(ListView):
+
+	model = models.Translation
+	paginate_by = 10  # if pagination is desired
+	template_name = "dictionary/translation_list.html"
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		return context
+
+
+class BookView(DetailView):
+
+    model = models.Book
+    template_name = 'dictionary/book_detail.html'
+    slug_url_kwarg = 'slug'
+ 
 
 """
 class LecturesListView(ListView):

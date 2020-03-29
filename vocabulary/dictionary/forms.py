@@ -36,7 +36,7 @@ class BookForm(ModelForm):
     class Meta:
     
         model = Book
-        exclude = ['author']
+        exclude = ['author','slug','translations']
         
 class AuthorForm(ModelForm):
 

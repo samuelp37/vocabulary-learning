@@ -27,7 +27,8 @@ class Language(models.Model):
 class Support(models.Model):
 
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
-    title = models.CharField("Title",max_length=100,default='',null=True,blank=True)
+    title = models.CharField("Title",max_length=100,default='')
+    slug = models.CharField("Slug",max_length=100,default='',null=True,blank=True)
     
     def __str__(self):
         return self.title
@@ -42,9 +43,14 @@ class Book(Support):
     author = models.ForeignKey('Author',on_delete=models.CASCADE,default='')
     subtitle = models.CharField("Subtitle",max_length=100,default='',null=True,blank=True)
     nb_pages = models.IntegerField("Number of pages",default=-1,null=True,blank=True)
+    translations = models.ManyToManyField('Translation', through='TranslationLink',null=True,blank=True)
     
     def __str__(self):
         return self.title + "("+self.author.__str__()+")"
+        
+    @property
+    def nb_translations(self):
+        return self.translations.all().count()
     
     class Meta:
         verbose_name = "Book"
@@ -115,6 +121,18 @@ class Translation(models.Model):
     class Meta:
         verbose_name = "Translation"
         verbose_name_plural = "Translations"
+        
+class TranslationLink(models.Model):
+	
+    item = models.ForeignKey('Translation',on_delete=models.CASCADE,default='')
+    book = models.ForeignKey('Book',on_delete=models.CASCADE,default='')
+	
+    def __str__(self):
+        return self.book.__str__()+"-"+self.item.__str__()
+		
+    class Meta:
+        verbose_name = "Translation - Book"
+        verbose_name_plural = "Translations - Books"
     
         
 class Vocabulary(models.Model):
