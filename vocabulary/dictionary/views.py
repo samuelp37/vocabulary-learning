@@ -30,8 +30,8 @@ def translationform(request):
         
         # Adding the 2 words
         if formA.is_valid() and formB.is_valid():
-            wordA = formA.save()
-            wordB = formB.save()
+            wordA, boolA = models.Word.objects.get_or_create(**formA.cleaned_data)
+            wordB, boolB = models.Word.objects.get_or_create(**formB.cleaned_data)
             form.original_word = wordA
             form.translated_word = wordB
             
@@ -59,8 +59,7 @@ def translationform(request):
     formB.title = "Translated word"
     
     words_queryset = models.Word.objects.all()
-    print(words_queryset)
-    #words = {0:"word",1:"wordb"}
+    
     words = {}
     for i in range(len(words_queryset)):
         word_tmp = words_queryset[i]
