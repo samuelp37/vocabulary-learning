@@ -1,4 +1,4 @@
-from dictionary.models import Translation, Word
+from dictionary.models import Translation, Word, Book, Author
 from django.forms import ModelForm, Textarea, DateInput
 from django.contrib.admin import widgets 
 
@@ -14,7 +14,6 @@ class TranslationForm(ModelForm):
             'date_added': DateInput(format='%Y-%m-%d',attrs={'class':'my-datepicker'}),
         }
 
-    
 class WordForm(ModelForm):
 
     class Meta:
@@ -31,3 +30,17 @@ class WordForm(ModelForm):
     class Media:
         js = ('js/search_list_word.js',)
     """
+    
+class BookForm(ModelForm):
+
+    class Meta:
+    
+        model = Book
+        exclude = ['author']
+        
+class AuthorForm(ModelForm):
+
+    class Meta:
+    
+        model = Author
+        fields = '__all__'

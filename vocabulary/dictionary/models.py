@@ -12,7 +12,7 @@ class Author(models.Model):
     class Meta:
         verbose_name = "Author"
         verbose_name_plural = "Authors"
-        
+ 
 class Language(models.Model):
     
     name = models.CharField("Name",max_length=100,default='',null=True,blank=True)
@@ -33,6 +33,7 @@ class Support(models.Model):
         return self.title
 
     class Meta:
+        abstract = True
         verbose_name = "Support"
         verbose_name_plural = "Supports"
         
