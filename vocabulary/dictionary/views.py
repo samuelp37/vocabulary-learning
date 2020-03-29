@@ -23,25 +23,48 @@ def translationform(request):
     form = None
     #if form is submitted
     if request.method == 'POST':
-        #will handle the request later
-        a = 0
-    else:
-        #creating a new form
-        form = forms.TranslationForm()
-        formA = forms.WordForm(prefix="original")
-        formB = forms.WordForm(prefix="translate")
+    
+        formA = forms.WordForm(request.POST,prefix="original")
+        formB = forms.WordForm(request.POST,prefix="translate")
+        form = forms.TranslationForm(request.POST)
         
-        target_words_input_id = "#id_"+formA.prefix+"-word,#id_"+formB.prefix+"-word"
-        formA.title = "Original word"
-        formB.title = "Translated word"
-        
-        #words = models.Word.objects.all()
-        #words = {0:"word",1:"wordb"}
-        words = {}
-        for i in range(10000):
-            words[i] = [random_str(10),random.choice([1,2,3,4]),random.choice([1,2,3])];
-        #words = {0:["Schwierigkeit",2,2],1:["difficulty",4,1]}
-        #print(words)
+        # Adding the 2 words
+        if formA.is_valid() and formB.is_valid():
+            wordA = formA.save()
+            wordB = formB.save()
+            form.original_word = wordA
+            form.translated_word = wordB
+            
+            if form.is_valid():
+                translate = form.save(commit=False)
+                translate.original_word = wordA
+                translate.translated_word = wordB
+                translate.save()
+            else:
+                print(form.cleaned_data)
+                print(form.non_field_errors())
+                print([ (field.label, field.errors) for field in form])
+        else:
+            print(formA.cleaned_data)
+            print(formA.non_field_errors())
+            print([ (field.label, field.errors) for field in formA])
+   
+    #creating a new form
+    form = forms.TranslationForm()
+    formA = forms.WordForm(prefix="original")
+    formB = forms.WordForm(prefix="translate")
+    
+    target_words_input_id = "#id_"+formA.prefix+"-word,#id_"+formB.prefix+"-word"
+    formA.title = "Original word"
+    formB.title = "Translated word"
+    
+    words_queryset = models.Word.objects.all()
+    print(words_queryset)
+    #words = {0:"word",1:"wordb"}
+    words = {}
+    for i in range(len(words_queryset)):
+        word_tmp = words_queryset[i]
+        words[i] = [word_tmp.word,word_tmp.gender.id,word_tmp.language.id]
         
     #returning form 
     return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words,'target_words_input_id':target_words_input_id})

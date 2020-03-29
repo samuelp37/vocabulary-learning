@@ -18,10 +18,15 @@ Adding a translation
 
 <script src="{% static 'dictionary/dictionary/js/addword_form.js' %}"></script>
 
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+<script src="{% static 'dictionary/dictionary/js/datepicker_bootstrap.js' %}"></script>
+
 {% endblock %}
 
 {% block body %}
-<form action="/add/" method="post">
+
+<form action="{% url 'add' %}" method="post">
 	{% csrf_token %}
 	{% include "dictionary/addword_form.html" with form=formA %}    
 	{% include "dictionary/addword_form.html" with form=formB %}  

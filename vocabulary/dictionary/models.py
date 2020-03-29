@@ -87,13 +87,13 @@ class Gender(models.Model):
         
 class Word(models.Model):
 
-    word = models.CharField("Word",max_length=100,default='',null=True,blank=True)
+    word = models.CharField("Word",max_length=100,default='')
     gender = models.ForeignKey('Gender',on_delete=models.CASCADE,default='')
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
     def __str__(self):
-        return self.word + "("+self.language+")"
-        
+        return self.word + "("+self.language.name+")"
+     
     class Meta:
         verbose_name = "Word"
         verbose_name_plural = "Words"
@@ -109,7 +109,7 @@ class Translation(models.Model):
     translation_context_sentence = models.TextField("Translation of the context sentence",default='',null=True,blank=True)
     
     def __str__(self):
-        return self.original_word + " - "+self.translated_word
+        return self.original_word.word + " - "+self.translated_word.word
         
     class Meta:
         verbose_name = "Translation"
@@ -118,8 +118,8 @@ class Translation(models.Model):
         
 class Vocabulary(models.Model):
 
-    original_word = models.CharField("Original word",max_length=100,default='',null=True,blank=True)
-    translation = models.CharField("Translation",max_length=100,default='',null=True,blank=True)
+    original_word = models.CharField("Original word",max_length=100,default='')
+    translation = models.CharField("Translation",max_length=100,default='')
     
     context_sentence = models.TextField("Context original sentence",default='',null=True,blank=True)
     translation_context_sentence = models.TextField("Translation of the context sentence",default='',null=True,blank=True)
