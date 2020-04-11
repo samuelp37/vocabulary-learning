@@ -1,20 +1,29 @@
 from django.shortcuts import render, get_object_or_404
 from . import forms
 from django.views.generic.list import ListView
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from . import models
 from django.http import HttpResponse, HttpResponseRedirect
 import random
 import string
 from django.utils.text import slugify
 from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
-def home(request):
-    return HttpResponse('Hello, World!')
+
+class HomeNoMemberView(TemplateView):
+
+    template_name = 'dictionary/home_nomember.html'
+
+class HomeMemberView(LoginRequiredMixin,TemplateView):
+
+    template_name = 'dictionary/home_member.html'
         
 def random_str(n):
     return ''.join(random.choice(string.ascii_letters) for x in range(n))
     
+@login_required
 def addbookform(request):
     form = None
     #if form is submitted
@@ -30,6 +39,7 @@ def addbookform(request):
             if form.is_valid():
                 book = form.save(commit=False)
                 book.author = authorA
+                book.user = request.user
                 book.slug = slugify(book.title)
                 book.save()
             else:
@@ -58,6 +68,7 @@ def addbookform(request):
     #returning form 
     return render(request, 'dictionary/bookform.html', {'form':form,'formA':formA,'authors':authors,'target_words_input_id':target_words_input_id})
 
+@login_required
 def translationform(request,slug=None):
     print(slug)
     form = None
@@ -79,6 +90,7 @@ def translationform(request,slug=None):
                 translate = form.save(commit=False)
                 translate.original_word = wordA
                 translate.translated_word = wordB
+                translate.user = request.user
                 translate_item = translate.save()
                 
                 if slug!=None:
@@ -117,28 +129,34 @@ def translationform(request,slug=None):
     #returning form 
     return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words,'target_words_input_id':target_words_input_id,'slug':slug})
 
-class BooksListView(ListView):
+class BooksListView(LoginRequiredMixin,ListView):
 
-	model = models.Book
-	paginate_by = 10  # if pagination is desired
-	template_name = "dictionary/books_list.html"
+    model = models.Book
+    paginate_by = 10  # if pagination is desired
+    template_name = "dictionary/books_list.html"
+    
+    def get_queryset(self):
+        return models.Book.objects.filter(user=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
 
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		return context
+class TranslationListView(LoginRequiredMixin,ListView):
 
-class TranslationListView(ListView):
+    model = models.Translation
+    paginate_by = 10  # if pagination is desired
+    template_name = "dictionary/translation_list.html"
+     
+    def get_queryset(self):
+        return models.Translation.objects.filter(user=self.request.user)
 
-	model = models.Translation
-	paginate_by = 10  # if pagination is desired
-	template_name = "dictionary/translation_list.html"
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
 
 
-class BookView(DetailView):
+class BookView(LoginRequiredMixin,DetailView):
 
     model = models.Book
     template_name = 'dictionary/book_detail.html'

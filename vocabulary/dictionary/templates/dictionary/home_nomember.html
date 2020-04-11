@@ -1,0 +1,25 @@
+{% extends 'dictionary/base_global_nomember.html' %}
+
+{% block body %}
+  
+    <div class="col-md-6 offset-md-3">
+		
+		<h1 class="secondary text-center">
+		Vocabulary session
+		</h1>
+		<br>	
+		<div class="card">
+		  <div class="card-body">
+		    <div class="btn-group btn-group-justified">
+				<a href="{% url 'login' %}">
+				  <input class="btn btn-primary login" value="Log in" />
+				</a>
+				<a href="{% url 'signup' %}">
+				  <input class="btn btn-primary login" value="Sign up" />
+				</a>
+			</div>
+		  </div>
+		</div>
+	</div>
+  
+{% endblock %}

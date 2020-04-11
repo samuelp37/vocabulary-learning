@@ -27,7 +27,10 @@ Lectures list
 			  <td>{{ translation.date_added|date:'d/m/Y' }}</td>
 		  </tr>
 		  {% empty %}
-		  No translations yet.
+		  <div class="alert alert-info" role="alert">
+		  No translation yet.
+		  </div>
+		  <br>
 	      {% endfor %}
       </tbody>
 	</table>

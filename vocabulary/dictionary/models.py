@@ -1,5 +1,6 @@
 from django.db import models
 import datetime
+from django.contrib.auth.models import User
 
 class Author(models.Model):
 
@@ -29,6 +30,7 @@ class Support(models.Model):
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     title = models.CharField("Title",max_length=100,default='')
     slug = models.CharField("Slug",max_length=100,default='',null=True,blank=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     
     def __str__(self):
         return self.title
@@ -114,6 +116,8 @@ class Translation(models.Model):
     
     context_sentence = models.TextField("Context original sentence",default='',null=True,blank=True)
     translation_context_sentence = models.TextField("Translation of the context sentence",default='',null=True,blank=True)
+    
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     
     def __str__(self):
         return self.original_word.word + " - "+self.translated_word.word

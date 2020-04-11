@@ -7,7 +7,7 @@ class TranslationForm(ModelForm):
     class Meta:
     
         model = Translation
-        exclude = ['original_word','translated_word']
+        exclude = ['original_word','translated_word','user']
         widgets = {
             'context_sentence': Textarea(attrs={'cols': 80, 'rows': 2}),
             'translation_context_sentence': Textarea(attrs={'cols': 80, 'rows': 2}),
@@ -36,7 +36,7 @@ class BookForm(ModelForm):
     class Meta:
     
         model = Book
-        exclude = ['author','slug','translations']
+        exclude = ['author','slug','translations','user']
         
 class AuthorForm(ModelForm):
 

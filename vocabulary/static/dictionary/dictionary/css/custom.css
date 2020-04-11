@@ -1,3 +1,11 @@
+body.color{
+	background-color: #00487C!important;
+}
+
+input.login{
+	cursor:pointer;
+}
+
 p.title{
 	color: #CBE2F2;
 	font-size: 16px;
@@ -14,7 +22,7 @@ p.head{
 }
 
 .secondary{
-	color: #00487C!important;
+	color: #00ADFF!important;
 }
 
 img{
