@@ -11,7 +11,7 @@ from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from extra_views import CreateWithInlinesView, InlineFormSet
 from django.db import models as djangoModel
 
@@ -102,7 +102,7 @@ class CreateBookView(LoginRequiredMixin,AutoCompletionNestedView):
         
 class CreateTranslationView(LoginRequiredMixin,AutoCompletionNestedView):
 
-    def get(self, request,slug):
+    def get(self, request,slug=None):
         
         target_input_words = []
         
@@ -176,22 +176,31 @@ class TranslationListView(LoginRequiredMixin,ListView):
         context = super().get_context_data(**kwargs)
         return context
 
+class AuthorizeAccessDetailView(View):
 
-class BookView(LoginRequiredMixin,DetailView):
-
-    model = models.Book
-    template_name = 'dictionary/book_detail.html'
-    slug_url_kwarg = 'slug'
-    
     def get(self, request, slug):
-        
         obj = super().get_object()
-        
         if obj.user != request.user:
             return HttpResponseForbidden('Unauthorized access')
         
         return super().get(self, request, slug)
- 
+    
+class BookView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+
+    model = models.Book
+    template_name = 'dictionary/book_detail.html'
+    slug_url_kwarg = 'slug'
+        
+class UpdateBookView(LoginRequiredMixin,UpdateView,AuthorizeAccessDetailView):
+
+    model = models.Book
+    fields=["title","language","author","subtitle","nb_pages"]
+    template_name = 'dictionary/book_update.html'
+    slug_url_kwarg = 'slug'
+    context_object_name = 'book'
+        
+    def get_success_url(self):
+        return reverse('details_book', kwargs={'slug':self.kwargs['slug']})
 
 """
 class LecturesListView(ListView):

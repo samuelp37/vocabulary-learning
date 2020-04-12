@@ -27,9 +27,9 @@ class Language(models.Model):
 
 class Support(models.Model):
 
-    language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     title = models.CharField("Title",max_length=100,default='')
-    slug = models.CharField("Slug",max_length=100,default='',null=True,blank=True)
+    language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
+    slug = models.SlugField("Slug",max_length=100,default='',null=True,blank=True)
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     
     def __str__(self):
