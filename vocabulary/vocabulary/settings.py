@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 	'crispy_forms',
     'dictionary.apps.DictionaryConfig',
     'accounts.apps.AccountsConfig',
+    'extra_views',
 ]
 
 MIDDLEWARE = [

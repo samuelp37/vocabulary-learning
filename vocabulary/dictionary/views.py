@@ -2,15 +2,34 @@ from django.shortcuts import render, get_object_or_404
 from . import forms
 from django.views.generic.list import ListView
 from django.views.generic import DetailView, TemplateView
+from django.views.generic.base import View
 from . import models
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 import random
 import string
 from django.utils.text import slugify
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.views.generic.edit import CreateView
+from extra_views import CreateWithInlinesView, InlineFormSet
+from django.db import models as djangoModel
 
+def get_all_fields_from_form(instance):
+    """"
+    Return names of all available fields from given Form instance.
+
+    :arg instance: Form instance
+    :returns list of field names
+    :rtype: list
+    """
+
+    fields = list(instance().base_fields)
+
+    for field in list(instance().declared_fields):
+        if field not in fields:
+            fields.append(field)
+    return fields
 
 class HomeNoMemberView(TemplateView):
 
@@ -22,15 +41,50 @@ class HomeMemberView(LoginRequiredMixin,TemplateView):
         
 def random_str(n):
     return ''.join(random.choice(string.ascii_letters) for x in range(n))
+
+class AutoCompletionNestedView(View):
     
-@login_required
-def addbookform(request):
-    form = None
-    #if form is submitted
-    if request.method == 'POST':
+    def create_autocomplete_form(self,model=models.Author,modelForm=forms.AuthorForm,prefix="author",title="Author",label_field="first_name"):
     
-        formA = forms.AuthorForm(request.POST,prefix="author")
+        form = modelForm(prefix=prefix)
+        target_input_id = "#id_"+form.prefix+"-"+label_field
+        form.title = title
+        form.list_fields = get_all_fields_from_form(modelForm)
+    
+        queryset = model.objects.all()
+        dict_instances = {}
+        for i in range(len(queryset)):
+            tmp = queryset[i]
+            dict_instances[i] = []
+            for field_name in form.list_fields:
+                attr = getattr(tmp, field_name)
+                if isinstance(attr,djangoModel.Model):
+                    dict_instances[i].append(attr.id)
+                else:
+                    dict_instances[i].append(attr)
+            dict_instances[i].append(tmp.__str__())
+                
+        return form, target_input_id, dict_instances
+    
+class CreateBookView(LoginRequiredMixin,AutoCompletionNestedView):
+
+    def get(self, request):
+        
+        target_input_words = []
+        
+        #creating a new form
+        form = forms.BookForm()
+        formA, target_input_id, authors = self.create_autocomplete_form(model=models.Author,modelForm=forms.AuthorForm,prefix="author",title="Author",label_field="first_name")
+            
+        target_input_words.append(target_input_id)
+        target_input_words = ",".join(target_input_words)
+           
+        return render(request, 'dictionary/bookform.html', {'form':form,'formA':formA,'authors':authors,'target_input_words':target_input_words})
+
+    def post(self, request):
+        
         form = forms.BookForm(request.POST)
+        formA = forms.AuthorForm(request.POST,prefix="author")
         
         # Adding the 2 words
         if formA.is_valid():
@@ -42,39 +96,30 @@ def addbookform(request):
                 book.user = request.user
                 book.slug = slugify(book.title)
                 book.save()
-            else:
-                print(form.cleaned_data)
-                print(form.non_field_errors())
-                print([ (field.label, field.errors) for field in form])
-        else:
-            print(formA.cleaned_data)
-            print(formA.non_field_errors())
-            print([ (field.label, field.errors) for field in formA])
-   
-    #creating a new form
-    form = forms.BookForm()
-    formA = forms.AuthorForm(prefix="author")
-    
-    target_words_input_id = "#id_"+formA.prefix+"-first_name"
-    formA.title = "Author"
-    
-    authors_queryset = models.Author.objects.all()
-    
-    authors = {}
-    for i in range(len(authors_queryset)):
-        author_tmp = authors_queryset[i]
-        authors[i] = [author_tmp.first_name,author_tmp.last_name]
+                return HttpResponseRedirect(reverse('list_book'))
         
-    #returning form 
-    return render(request, 'dictionary/bookform.html', {'form':form,'formA':formA,'authors':authors,'target_words_input_id':target_words_input_id})
+        return self.get(request)
+        
+class CreateTranslationView(LoginRequiredMixin,AutoCompletionNestedView):
 
-@login_required
-def translationform(request,slug=None):
-    print(slug)
-    form = None
-    #if form is submitted
-    if request.method == 'POST':
-    
+    def get(self, request,slug):
+        
+        target_input_words = []
+        
+        #creating a new form
+        form = forms.TranslationForm()
+        formA, target_input_id, words = self.create_autocomplete_form(model=models.Word,modelForm=forms.WordForm,prefix="original",title="Original word",label_field="word")
+        target_input_words.append(target_input_id)
+        formB, target_input_id, words = self.create_autocomplete_form(model=models.Word,modelForm=forms.WordForm,prefix="translate",title="Translated word",label_field="word") 
+        target_input_words.append(target_input_id)
+        target_input_words = ",".join(target_input_words)
+           
+        print(words) 
+          
+        return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words,'target_input_words':target_input_words})
+
+    def post(self, request,slug=None):
+        
         formA = forms.WordForm(request.POST,prefix="original")
         formB = forms.WordForm(request.POST,prefix="translate")
         form = forms.TranslationForm(request.POST)
@@ -100,35 +145,11 @@ def translationform(request,slug=None):
                     translation_link.book = book
                     id_translationlink = translation_link.save()
                     return HttpResponseRedirect(reverse('details_book', kwargs={'slug':slug}))
-            else:
-                print(form.cleaned_data)
-                print(form.non_field_errors())
-                print([ (field.label, field.errors) for field in form])
-           
-        else:
-            print(formA.cleaned_data)
-            print(formA.non_field_errors())
-            print([ (field.label, field.errors) for field in formA])
-   
-    #creating a new form
-    form = forms.TranslationForm()
-    formA = forms.WordForm(prefix="original")
-    formB = forms.WordForm(prefix="translate")
-    
-    target_words_input_id = "#id_"+formA.prefix+"-word,#id_"+formB.prefix+"-word"
-    formA.title = "Original word"
-    formB.title = "Translated word"
-    
-    words_queryset = models.Word.objects.all()
-    
-    words = {}
-    for i in range(len(words_queryset)):
-        word_tmp = words_queryset[i]
-        words[i] = [word_tmp.word,word_tmp.gender.id,word_tmp.language.id]
+                    
+                return HttpResponseRedirect(reverse('list_translations'))
         
-    #returning form 
-    return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words,'target_words_input_id':target_words_input_id,'slug':slug})
-
+        return self.get(request)
+   
 class BooksListView(LoginRequiredMixin,ListView):
 
     model = models.Book
@@ -161,6 +182,15 @@ class BookView(LoginRequiredMixin,DetailView):
     model = models.Book
     template_name = 'dictionary/book_detail.html'
     slug_url_kwarg = 'slug'
+    
+    def get(self, request, slug):
+        
+        obj = super().get_object()
+        
+        if obj.user != request.user:
+            return HttpResponseForbidden('Unauthorized access')
+        
+        return super().get(self, request, slug)
  
 
 """

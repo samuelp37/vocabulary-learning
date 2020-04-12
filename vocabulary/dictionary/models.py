@@ -37,6 +37,7 @@ class Support(models.Model):
 
     class Meta:
         abstract = True
+        unique_together = ("slug")
         verbose_name = "Support"
         verbose_name_plural = "Supports"
         

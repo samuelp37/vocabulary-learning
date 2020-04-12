@@ -1,6 +1,6 @@
 {% load crispy_forms_tags %}
 
-<div class="adding_word">
+<div class="adding_item">
 	<fieldset>
 		<legend>{{ form.title }}</legend>
 		<div class="row">
@@ -16,7 +16,7 @@
 		</div>
 		<ul class="list-group list_words" style="display:none">
 		  {% for key, values in words.items %}
-			<li class="list-group-item" onClick="choose(this,'id_{{ form.prefix }}','{{ values.0 }}',{{ values.1}} , {{ values.2 }});">{{ values.0 }}</li>
+			<li class="list-group-item" onClick="choose(this,'id_{{ form.prefix }}',{{ form.list_fields }},{{ values }});">{{ values|last }}</li>
 		  {% endfor %}
 		</ul>
 	</fieldset>

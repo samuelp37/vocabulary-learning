@@ -1,0 +1,28 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Adding a translation
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+{% endblock %}
+
+{% block body %}
+
+<h1>Add a book</h1>
+<br>
+
+<form method="post">
+  {{ form }}
+
+  {% for formset in inlines %}
+    {{ formset }}
+  {% endfor %}
+  
+  <input type="submit" value="Submit" />
+</form>
+{% endblock %}
