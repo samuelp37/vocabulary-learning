@@ -1,0 +1,33 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Translation
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% endblock %}
+
+{% block body %}
+	<h1>Translation</h1>
+	<br>
+	<a href="{% url 'update_translation' slug=translation.slug %}">
+		<button type="submit" class="btn btn-success">Update the translation</button>
+	</a>
+	<br><br>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Original word : {{ translation.original_word.word }} - {{ translation.original_word.gender.short }} ({{ translation.original_word.language.name }})
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Translation : {{ translation.translated_word.word }} - {{ translation.translated_word.gender.short }} ({{ translation.translated_word.language.name }})
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Original context : <br>{{ translation.context_sentence }}
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Translated context : <br>{{ translation.translation_context_sentence }}
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Added the : {{ translation.date_added|date:'d/m/Y'  }}
+	</li>
+{% endblock %}

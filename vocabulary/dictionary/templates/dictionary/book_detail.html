@@ -40,15 +40,35 @@ Lectures list
 		  <th scope="col">Original word</th>
 		  <th scope="col">Translated word</th>
 		  <th scope="col">Added on</th>
+		  <th scope="col"></th>
+		  <th scope="col"></th>
+		  <th scope="col"></th>
 		</tr>
 	  </thead>
 	  <tbody>
 		  {% for translation in book.translations.all %}
-		  <tr>
-			  <td>{{ translation.original_word.word }} ({{ translation.original_word.gender }})</td>
-			  <td>{{ translation.translated_word.word }} ({{ translation.translated_word.gender.short }})</td>
-			  <td>{{ translation.date_added|date:'d/m/Y' }}</td>
-		  </tr>
+			  <tr>
+				  <td class="align-middle">{{ translation.original_word.word }} ({{ translation.original_word.gender }})</td>
+				  <td class="align-middle">{{ translation.translated_word.word }} ({{ translation.translated_word.gender.short }})</td>
+				  <td class="align-middle">{{ translation.date_added|date:'d/m/Y' }}</td>
+				  <td>
+					<a href="{% url 'details_translation' slug=translation.slug %}">
+						<button class="btn btn-primary">
+							<i class="fa fa-eye" aria-hidden="true"></i>
+						</button>
+					</a>
+				  </td>
+				  <td>
+					<button class="btn btn-success">
+						<i class="fa fa-pen" aria-hidden="true"></i>
+					</button>
+				  </td>
+				  <td>
+					<button class="btn btn-danger">
+						<i class="fa fa-times" aria-hidden="true"></i>
+					</button>
+				  </td>
+			  </tr>
 		  {% empty %}
 		  No translations yet.
 	      {% endfor %}

@@ -44,14 +44,21 @@ def random_str(n):
 
 class AutoCompletionNestedView(View):
     
-    def create_autocomplete_form(self,model=models.Author,modelForm=forms.AuthorForm,prefix="author",title="Author",label_field="first_name"):
-    
-        form = modelForm(prefix=prefix)
+    def create_autocomplete_form(self,request,model=models.Author,modelForm=forms.AuthorForm,prefix="author",title="Author",label_field="first_name",user_based=False,pre_instance=None):
+        
+        if pre_instance is None:
+            form = modelForm(prefix=prefix)
+        else:
+            form = modelForm(None, prefix=prefix, instance=pre_instance)
+        
         target_input_id = "#id_"+form.prefix+"-"+label_field
         form.title = title
         form.list_fields = get_all_fields_from_form(modelForm)
     
-        queryset = model.objects.all()
+        if not user_based:
+            queryset = model.objects.all()
+        else:
+            queryset = model.objects.all().filter(user=request.user)
         dict_instances = {}
         for i in range(len(queryset)):
             tmp = queryset[i]
@@ -74,7 +81,7 @@ class CreateBookView(LoginRequiredMixin,AutoCompletionNestedView):
         
         #creating a new form
         form = forms.BookForm()
-        formA, target_input_id, authors = self.create_autocomplete_form(model=models.Author,modelForm=forms.AuthorForm,prefix="author",title="Author",label_field="first_name")
+        formA, target_input_id, authors = self.create_autocomplete_form(request,model=models.Author,modelForm=forms.AuthorForm,prefix="author",title="Author",label_field="first_name",user_based=False)
             
         target_input_words.append(target_input_id)
         target_input_words = ",".join(target_input_words)
@@ -108,20 +115,20 @@ class CreateTranslationView(LoginRequiredMixin,AutoCompletionNestedView):
         
         #creating a new form
         form = forms.TranslationForm()
-        formA, target_input_id, words = self.create_autocomplete_form(model=models.Word,modelForm=forms.WordForm,prefix="original",title="Original word",label_field="word")
+        formA, target_input_id, words = self.create_autocomplete_form(request,model=models.Word,modelForm=forms.WordForm,prefix="original",title="Original word",label_field="word",user_based=False)
         target_input_words.append(target_input_id)
-        formB, target_input_id, words = self.create_autocomplete_form(model=models.Word,modelForm=forms.WordForm,prefix="translate",title="Translated word",label_field="word") 
+        formB, target_input_id, words = self.create_autocomplete_form(request,model=models.Word,modelForm=forms.WordForm,prefix="translate",title="Translated word",label_field="word",user_based=False) 
         target_input_words.append(target_input_id)
         target_input_words = ",".join(target_input_words)
-           
-        print(words) 
           
         return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words,'target_input_words':target_input_words})
 
     def post(self, request,slug=None):
         
         formA = forms.WordForm(request.POST,prefix="original")
+        formA.user = request.user
         formB = forms.WordForm(request.POST,prefix="translate")
+        formB.user = request.user
         form = forms.TranslationForm(request.POST)
         
         # Adding the 2 words
@@ -136,6 +143,7 @@ class CreateTranslationView(LoginRequiredMixin,AutoCompletionNestedView):
                 translate.original_word = wordA
                 translate.translated_word = wordB
                 translate.user = request.user
+                translate.slug = slugify(wordA.word+"-"+wordB.word)
                 translate_item = translate.save()
                 
                 if slug!=None:
@@ -201,7 +209,63 @@ class UpdateBookView(LoginRequiredMixin,UpdateView,AuthorizeAccessDetailView):
         
     def get_success_url(self):
         return reverse('details_book', kwargs={'slug':self.kwargs['slug']})
+        
+class TranslationView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
 
+    model = models.Translation
+    template_name = 'dictionary/translation_detail.html'
+    slug_url_kwarg = 'slug'
+    context_object_name = 'translation'
+    
+class UpdateTranslationView(LoginRequiredMixin,UpdateView,AuthorizeAccessDetailView,AutoCompletionNestedView):
+
+    model = models.Translation
+    fields=["original_word","translated_word","context_sentence","translation_context_sentence"]
+    template_name = 'dictionary/translation_update.html'
+    slug_url_kwarg = 'slug'
+    context_object_name = 'translation'
+    
+    def get(self, request,slug=None):
+        
+        target_input_words = []
+        
+        # Getting pre-instance
+        pre_instance = get_object_or_404(models.Translation, slug=self.kwargs['slug'])
+        
+        #creating a new form
+        form = forms.TranslationForm(None, instance=pre_instance)
+        formA, target_input_id, words = self.create_autocomplete_form(request,model=models.Word,modelForm=forms.WordForm,prefix="original",title="Original word",label_field="word",pre_instance=pre_instance.original_word)
+        target_input_words.append(target_input_id)
+        formB, target_input_id, words = self.create_autocomplete_form(request,model=models.Word,modelForm=forms.WordForm,prefix="translate",title="Translated word",label_field="word",pre_instance=pre_instance.translated_word) 
+        target_input_words.append(target_input_id)
+        target_input_words = ",".join(target_input_words)
+          
+        return render(request, 'dictionary/translation_update.html', {'slug':self.kwargs['slug'],'form':form,'formA':formA,'formB':formB,'words':words,'target_input_words':target_input_words})
+    
+    def post(self, request,slug=None):
+        
+        formA = forms.WordForm(request.POST,prefix="original")
+        formB = forms.WordForm(request.POST,prefix="translate")
+        pre_instance = get_object_or_404(models.Translation, slug=self.kwargs['slug'])
+        form = forms.TranslationForm(request.POST,instance=pre_instance)
+        
+        # Adding the 2 words
+        if formA.is_valid() and formB.is_valid():
+            wordA, boolA = models.Word.objects.get_or_create(**formA.cleaned_data)
+            wordB, boolB = models.Word.objects.get_or_create(**formB.cleaned_data)
+            form.original_word = wordA
+            form.translated_word = wordB
+            
+            if form.is_valid():
+                translate = form.save(commit=False)
+                translate.original_word = wordA
+                translate.translated_word = wordB
+                translate.slug = slugify(wordA.word+"-"+wordB.word)
+                translate_item = translate.save()
+                return HttpResponseRedirect(reverse('details_translation', kwargs={'slug':translate.slug}))
+        
+        return self.get(request)
+    
 """
 class LecturesListView(ListView):
 
