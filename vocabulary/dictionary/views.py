@@ -121,7 +121,7 @@ class CreateTranslationView(LoginRequiredMixin,AutoCompletionNestedView):
         target_input_words.append(target_input_id)
         target_input_words = ",".join(target_input_words)
           
-        return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words,'target_input_words':target_input_words})
+        return render(request, 'dictionary/vocform.html', {'form':form,'formA':formA,'formB':formB,'words':words,'target_input_words':target_input_words,'slug':slug})
 
     def post(self, request,slug=None):
         
