@@ -98,6 +98,7 @@ class Gender(models.Model):
 class Word(models.Model):
 
     word = models.CharField("Word",max_length=100,default='')
+    plural = models.CharField("Plural",max_length=100,default='',null=True,blank=True)
     gender = models.ForeignKey('Gender',on_delete=models.CASCADE,default='')
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
@@ -107,11 +108,57 @@ class Word(models.Model):
     class Meta:
         verbose_name = "Word"
         verbose_name_plural = "Words"
+        
+class Adjective(models.Model):
+
+    word = models.CharField("Word",max_length=100,default='')
+    plural = models.CharField("Plural",max_length=100,default='',null=True,blank=True)
+    language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
+    
+    def __str__(self):
+        return self.word + "("+self.language.name+")"
+     
+    class Meta:
+        verbose_name = "Adjective"
+        verbose_name_plural = "Adjectives"
+        
+class Verb(models.Model):
+
+    word = models.CharField("Word",max_length=100,default='')
+    language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
+    
+    def __str__(self):
+        return self.word + "("+self.language.name+")"
+     
+    class Meta:
+        verbose_name = "Verb"
+        verbose_name_plural = "Verbs"
+        
+class Expression(models.Model):
+
+    word = models.CharField("Word",max_length=100,default='')
+    language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
+    
+    def __str__(self):
+        return self.word + "("+self.language.name+")"
+     
+    class Meta:
+        verbose_name = "Expression"
+        verbose_name_plural = "Expressions"
     
 class Translation(models.Model):
     
-    original_word = models.ForeignKey('Word',on_delete=models.CASCADE,default='',verbose_name="Original word",related_name="original_word")
-    translated_word = models.ForeignKey('Word',on_delete=models.CASCADE,default='',verbose_name="Translated word",related_name="translated_word")
+    original_word = models.ForeignKey('Word',on_delete=models.CASCADE,default='',verbose_name="Original name",related_name="original_word")
+    translated_word = models.ForeignKey('Word',on_delete=models.CASCADE,default='',verbose_name="Translated name",related_name="translated_word")
+    
+    original_adj = models.ForeignKey('Adjective',on_delete=models.CASCADE,default='',verbose_name="Original adjective",related_name="original_adj",null=True,blank=True)
+    translated_adj = models.ForeignKey('Adjective',on_delete=models.CASCADE,default='',verbose_name="Translated adjective",related_name="translated_adj",null=True,blank=True)
+    
+    original_verb = models.ForeignKey('Verb',on_delete=models.CASCADE,default='',verbose_name="Original verb",related_name="original_verb",null=True,blank=True)
+    translated_verb = models.ForeignKey('Verb',on_delete=models.CASCADE,default='',verbose_name="Translated verb",related_name="translated_verb",null=True,blank=True)
+    
+    original_expression = models.ForeignKey('Expression',on_delete=models.CASCADE,default='',verbose_name="Original expression",related_name="original_exp",null=True,blank=True)
+    translated_expression = models.ForeignKey('Expression',on_delete=models.CASCADE,default='',verbose_name="Translated expression",related_name="translated_exp",null=True,blank=True)
     
     date_added = models.DateField("Date of edition",default=datetime.date.today)
     

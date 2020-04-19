@@ -29,7 +29,9 @@ The HTML script should follow the current convention :
 
 $(document).ready(function(){
   $(target_words).on("keyup", function() {
-  
+    
+	console.log("Been here")
+	
 	var input, filter, list_words, li, a, i, txtValue, form_adding_word;
 	
 	form_adding_word = this.closest(".adding_item") // Getting the div surrounding the subform to "Add a word"

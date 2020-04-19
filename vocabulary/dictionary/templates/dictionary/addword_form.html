@@ -4,18 +4,21 @@
 	<fieldset>
 		<legend>{{ form.title }}</legend>
 		<div class="row">
-		  <div class="col-6">
+		  <div class="col-4">
 			{{ form.word|as_crispy_field }}
+		  </div>
+		  <div class="col-4">
+			{{ form.plural|as_crispy_field }}
 		  </div>
 		  <div class="col-2">
 			{{ form.gender|as_crispy_field }}
 		  </div>
-		  <div class="col-4">
+		  <div class="col-2">
 			{{ form.language|as_crispy_field }}
 		  </div>
 		</div>
 		<ul class="list-group list_words" style="display:none">
-		  {% for key, values in words.items %}
+		  {% for key, values in suggestion_word.items %}
 			<li class="list-group-item" onClick="choose(this,'id_{{ form.prefix }}',{{ form.list_fields }},{{ values }});">{{ values|last }}</li>
 		  {% endfor %}
 		</ul>

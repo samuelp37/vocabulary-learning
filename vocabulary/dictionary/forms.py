@@ -7,7 +7,7 @@ class TranslationForm(ModelForm):
     class Meta:
     
         model = Translation
-        exclude = ['original_word','translated_word','user','slug']
+        fields = ['date_added']
         widgets = {
             'context_sentence': Textarea(attrs={'cols': 80, 'rows': 2}),
             'translation_context_sentence': Textarea(attrs={'cols': 80, 'rows': 2}),

@@ -35,8 +35,8 @@ Adding a translation
 <form action="{% url 'add' %}" method="post">
 {% endif %}
 	{% csrf_token %}
-	{% include "dictionary/addword_form.html" with form=formA %}    
-	{% include "dictionary/addword_form.html" with form=formB %}  
+	{% include "dictionary/addword_form.html" with form=formA_word %}    
+	{% include "dictionary/addword_form.html" with form=formB_word %}  
 	{{ form|crispy }}
 	<button type="submit" class="btn btn-success">Adding the new translation</button>
 </form>
