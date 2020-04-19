@@ -98,7 +98,7 @@ class Gender(models.Model):
 class Word(models.Model):
 
     word = models.CharField("Word",max_length=100,default='')
-    plural = models.CharField("Plural",max_length=100,default='',null=True,blank=True)
+    plural = models.CharField("Plural",max_length=100,default='',blank=True)
     gender = models.ForeignKey('Gender',on_delete=models.CASCADE,default='')
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
@@ -112,7 +112,7 @@ class Word(models.Model):
 class Adjective(models.Model):
 
     word = models.CharField("Word",max_length=100,default='')
-    plural = models.CharField("Plural",max_length=100,default='',null=True,blank=True)
+    plural = models.CharField("Plural",max_length=100,default='')
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
     def __str__(self):

@@ -118,12 +118,18 @@ class TranslationForeignKeyTranslationField(AutoCompletionNestedView):
         self.original_prefix = "original_"+self.label_field
         self.translate_prefix = "translated_"+self.label_field
         
-    def initialize_get(self,request):
+    def initialize_get(self,request,pre_instance=None):
     
         self.target_input_words = []
-        self.formA, self.target_input_id, self.suggestion = self.create_autocomplete_form(request,model=self.model,modelForm=self.modelForm,prefix=self.original_prefix,title="Original "+self.label_field,label_field=self.label_field,user_based=self.user_based)
+        if pre_instance is None:
+            self.formA, self.target_input_id, self.suggestion = self.create_autocomplete_form(request,model=self.model,modelForm=self.modelForm,prefix=self.original_prefix,title="Original "+self.label_field,label_field=self.label_field,user_based=self.user_based)
+        else:
+            self.formA, self.target_input_id, self.suggestion = self.create_autocomplete_form(request,model=self.model,modelForm=self.modelForm,prefix=self.original_prefix,title="Original "+self.label_field,label_field=self.label_field,user_based=self.user_based, pre_instance=getattr(pre_instance,self.original_prefix))            
         self.target_input_words.append(self.target_input_id)
-        self.formB, self.target_input_id, _ = self.create_autocomplete_form(request,model=self.model,modelForm=self.modelForm,prefix=self.translate_prefix,title="Translated "+self.label_field,label_field=self.label_field,user_based=self.user_based) 
+        if pre_instance is None:
+            self.formB, self.target_input_id, _ = self.create_autocomplete_form(request,model=self.model,modelForm=self.modelForm,prefix=self.translate_prefix,title="Translated "+self.label_field,label_field=self.label_field,user_based=self.user_based) 
+        else:
+            self.formB, self.target_input_id, _ = self.create_autocomplete_form(request,model=self.model,modelForm=self.modelForm,prefix=self.translate_prefix,title="Translated "+self.label_field,label_field=self.label_field,user_based=self.user_based, pre_instance=getattr(pre_instance,self.translate_prefix))             
         self.target_input_words.append(self.target_input_id)
         self.target_input_words = ",".join(self.target_input_words)
         
@@ -282,7 +288,66 @@ class TranslationView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
     template_name = 'dictionary/translation_detail.html'
     slug_url_kwarg = 'slug'
     context_object_name = 'translation'
+
+class UpdateTranslationView(LoginRequiredMixin,AutoCompletionNestedView):
+
+    def initalize_nested_fields(self):
+        self.nested_fields = []
+        self.nested_fields.append(TranslationForeignKeyTranslationField(model=models.Word,modelForm=forms.WordForm,label_field="word"))
+
+    def get(self, request,slug):
+        
+        if "slug" in self.kwargs:
+            slug = self.kwargs['slug']
+        else:
+            slug = None
+        
+        # Getting nested_fields
+        self.initalize_nested_fields()
+        
+        # Getting pre-instance
+        pre_instance = get_object_or_404(models.Translation, slug=self.kwargs['slug'])
+        
+        # Creating a new form
+        form = forms.TranslationForm(None, instance=pre_instance)
+        variables_dict = {'form':form,'slug':slug,'target_input_words':""}
+        
+        # Creating nested forms
+        for field in self.nested_fields:
+            field.initialize_get(request,pre_instance)
+            field.update_variables_dict(variables_dict)
+          
+        return render(request, 'dictionary/translation_update.html', variables_dict)
+
+    def post(self, request, slug):
     
+        pre_instance = get_object_or_404(models.Translation, slug=self.kwargs['slug'])
+        form = forms.TranslationForm(request.POST,instance=pre_instance)
+    
+        # Getting nested_fields
+        self.initalize_nested_fields()
+        
+        success = True
+        for field in self.nested_fields:
+            success = field.initialize_post(request)
+            if not success:
+                break
+        
+        print("Success : "+str(success))
+        
+        if success:
+            
+            if form.is_valid():
+                translate = form.save(commit=False)
+                for field in self.nested_fields:
+                    field.update_main_form(translate)
+                translate.user = request.user
+                translate_item = translate.save()
+                    
+                return HttpResponseRedirect(reverse('list_translations'))
+    
+        return self.get(request)
+"""
 class UpdateTranslationView(LoginRequiredMixin,UpdateView,AuthorizeAccessDetailView,AutoCompletionNestedView):
 
     model = models.Translation
@@ -332,6 +397,7 @@ class UpdateTranslationView(LoginRequiredMixin,UpdateView,AuthorizeAccessDetailV
         
         return self.get(request)
     
+"""
 """
 class LecturesListView(ListView):
 
