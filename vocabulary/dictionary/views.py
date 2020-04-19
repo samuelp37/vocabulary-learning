@@ -150,7 +150,7 @@ class TranslationForeignKeyTranslationField(AutoCompletionNestedView):
    
         setattr(form, self.original_prefix, self.itemA)
         setattr(form, self.translate_prefix, self.itemB)
-        setattr(form, "slug", self.itemA.__str__() + "-" + self.itemB.__str__())
+        setattr(form, "slug", slugify(self.itemA.__str__() + "-" + self.itemB.__str__()))
         
     def update_variables_dict(self,variables_dict):
         new_dict = {}
@@ -166,7 +166,7 @@ class CreateTranslationView(LoginRequiredMixin,AutoCompletionNestedView):
         self.nested_fields = []
         self.nested_fields.append(TranslationForeignKeyTranslationField(model=models.Word,modelForm=forms.WordForm,label_field="word"))
 
-    def get(self, request):
+    def get(self, request,slug=None):
         
         if "slug" in self.kwargs:
             slug = self.kwargs['slug']
