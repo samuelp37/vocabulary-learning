@@ -14,6 +14,43 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import CreateView, UpdateView
 from extra_views import CreateWithInlinesView, InlineFormSet
 from django.db import models as djangoModel
+from django.http import JsonResponse
+import sys
+
+from .models import Word
+from .forms import WordForm
+
+def str_to_class(classname):
+    return getattr(sys.modules[__name__], classname)
+
+def autocomplete(request,model_name=Word,model_form=WordForm,max_number_suggestions=3):
+
+    authorized_models = ["Word"]
+    if model_name not in authorized_models:
+        return HttpResponseForbidden('Unauthorized access')
+
+    model = str_to_class(model_name)
+    model_form = str_to_class(model_form)
+
+    if request.is_ajax():
+        queryset = model.objects.filter(word__startswith=request.GET.get('search', None))
+        list = []        
+        for word in queryset[:max_number_suggestions]:
+            dict_instance = []
+            for field_name in get_all_fields_from_form(model_form):
+                attr = getattr(word, field_name)
+                if isinstance(attr,djangoModel.Model):
+                    dict_instance.append(attr.id)
+                else:
+                    dict_instance.append(attr)
+            dict_instance.append(word.__str__())
+            list.append(dict_instance)
+        data = {
+            'list': list,
+        }
+        print(data)
+        return JsonResponse(data)
+
 
 def get_all_fields_from_form(instance):
     """"

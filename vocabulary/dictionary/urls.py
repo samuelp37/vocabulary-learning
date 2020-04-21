@@ -13,4 +13,5 @@ urlpatterns = [
     path('member/books/list', views.BooksListView.as_view(), name='list_book'),
     path('member/books/details/<str:slug>', views.BookView.as_view(), name='details_book'),
     path('member/books/details/<str:slug>/add-word', views.CreateTranslationView.as_view(), name='add_word_book'),
+    path('ajax/autocomplete/<str:model_name>/<str:model_form>', views.autocomplete, name='autocomplete')
 ]

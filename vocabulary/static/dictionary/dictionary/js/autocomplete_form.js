@@ -26,33 +26,80 @@ The HTML script should follow the current convention :
 </div>
 */
 
+function get_variable_like_string(item){
+	// Number should be simply displayed, but string should be between quotes
+	//console.log("New item : "+item);
+	if(item==""){
+		//console.log("empty");
+		return "''";
+	}
+	else if(typeof item === 'number') {	
+		//console.log("number : "+item);
+		return item;
+	}
+	else if(typeof item === "string"){
+		//console.log("string : "+item);
+		return "'"+item+"'";
+	}
+	else{
+		//console.log("Don't know how to handle : "+item);
+		return item;
+	}
+}
+
+function get_array_like_string(arr){
+	
+	str = "[";
+	var i;
+	for (i = 0; i < arr.length; i++) {
+	  str += get_variable_like_string(arr[i]);
+	  if(i!=arr.length-1){
+		  str += ",";
+	  }
+	} 
+	str += "]";
+	return str
+	
+}
 
 $(document).ready(function(){
   $(target_words).on("keyup", function() {
-    
-	console.log("Been here")
+	
+	console.log("Been here");
 	
 	var input, filter, list_words, li, a, i, txtValue, form_adding_word;
 	
 	form_adding_word = this.closest(".adding_item") // Getting the div surrounding the subform to "Add a word"
 	list_words = form_adding_word.getElementsByTagName("ul")[0];
-	
-	filter = this.value.toUpperCase();
 	list_words.style.display = "block";
-	li = list_words.getElementsByTagName('li');
-	var counter =0;
-  
-    for (i = 0; i < li.length; i++) {
-      a = li[i];
-      txtValue = a.textContent || a.innerText;
-      if (txtValue.toUpperCase().indexOf(filter) == 0 && counter<3) {
-        li[i].style.display = "";
-		counter++;
-      } else {
-        li[i].style.display = "none";
-      }
-    }
-  
+	
+	var parameters = form_adding_word.getElementsByClassName("parameters")[0];
+	var prefix = parameters.getElementsByClassName("prefix")[0].innerText;
+	var list_fields = parameters.getElementsByClassName("list_fields")[0].innerText;
+	var url_autocomplete = parameters.getElementsByClassName("url_autocomplete")[0].innerText;
+
+	filter = this.value;
+	$.ajax({
+		url: url_autocomplete,
+		data: {
+		  'search': filter 
+		},
+		dataType: 'json',
+		success: function (data) {
+			list = data.list;
+			list_words.innerHTML = ""
+			$.each(list, function(i)
+			{
+				var x = get_array_like_string(list[i]);
+				var li = $('<li/>')
+				.addClass('list-group-item')
+				.css({'cursor': "pointer"})
+				.attr('onClick', "choose(this,'id_"+prefix+"',"+list_fields+","+x+");")
+				.text(list[i][list[i].length - 1])
+				.appendTo(list_words);
+			});       
+		}
+	});    
   });
   
 });
