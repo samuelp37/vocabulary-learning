@@ -11,7 +11,11 @@ Translation
 {% block body %}
 	<h1>Translation</h1>
 	<br>
+	{% if slug_book %}
+	<a href="{% url 'update_translation_book' slug_book=slug_book slug=translation.slug %}">
+	{% else %}
 	<a href="{% url 'update_translation' slug=translation.slug %}">
+	{% endif %}
 		<button type="submit" class="btn btn-success">Update the translation</button>
 	</a>
 	<br><br>

@@ -28,7 +28,11 @@ Updating a translation
 <h1>Update the translation</h1>
 <br>
 
+{% if slug_book %}
+<form action="{% url 'update_translation_book' slug_book=slug_book slug=slug %}" method="post">
+{% else %}
 <form action="{% url 'update_translation' slug=slug %}" method="post">
+{% endif %}
 	{% csrf_token %}
 	{% include "dictionary/addword_form.html" with form=formA_word %}    
 	{% include "dictionary/addword_form.html" with form=formB_word %}  

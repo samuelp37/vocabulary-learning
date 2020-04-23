@@ -12,7 +12,7 @@ Lectures list
 	<h1>{{ book.title }}</h1>
 	<br>
 	<h2>Main information :</h2>
-	<a href="{% url 'update_book' slug=book.slug %}">
+	<a href="{% url 'update_book' slug_book=book.slug %}">
 		<button type="submit" class="btn btn-success">Update the book informations</button>
 	</a>
 	<br><br>
@@ -30,7 +30,7 @@ Lectures list
 	</li>
 	<br>
 	<h2>Words :</h2>
-	<a href="{% url 'add_word_book' slug=book.slug %}">
+	<a href="{% url 'add_word_book' slug_book=book.slug %}">
 		<button type="submit" class="btn btn-success">Add a new word</button>
 	</a>
 	<br><br>
@@ -52,7 +52,7 @@ Lectures list
 				  <td class="align-middle">{{ translation.translated_word.word }} ({{ translation.translated_word.gender.short }})</td>
 				  <td class="align-middle">{{ translation.date_added|date:'d/m/Y' }}</td>
 				  <td>
-					<a href="{% url 'details_translation' slug=translation.slug %}">
+					<a href="{% url 'view_translation_book' slug_book=book.slug slug=translation.slug %}">
 						<button class="btn btn-primary">
 							<i class="fa fa-eye" aria-hidden="true"></i>
 						</button>

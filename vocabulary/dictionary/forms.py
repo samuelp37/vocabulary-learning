@@ -19,7 +19,7 @@ class WordForm(ModelForm):
     class Meta:
     
         model = Word
-        exclude=['user']
+        fields = "__all__"
         """
         widgets = {
             'context_sentence': Textarea(attrs={'cols': 80, 'rows': 2}),
