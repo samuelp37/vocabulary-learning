@@ -17,9 +17,6 @@ import sys
 
 from .views_common import *
 
-from .models import Word
-from .forms import WordForm
-
 class HomeNoMemberView(TemplateView):
 
     template_name = 'dictionary/home_nomember.html'
@@ -31,20 +28,33 @@ class HomeMemberView(LoginRequiredMixin,TemplateView):
 class WordAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
 
     def __init__(self):
-        AutoCompletionNestedField.__init__(self,model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix=None,title=None,label_field=None,user_based=False)
-     
+        AutoCompletionNestedField.__init__(self,model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix=None,title=None,user_based=False)
+
+class AuthorAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
+
+    def __init__(self):
+        AutoCompletionNestedField.__init__(self,model_name="Author",model_form_name="AuthorForm",field_autocomplete_name="first_name",prefix=None,title=None,user_based=False)
+
+  
 class CreateBookView(LoginRequiredMixin,View):
+
+    def initalize_nested_fields(self):
+        self.nested_field = AutoCompletionNestedField(model_name="Author",model_form_name="AuthorForm",field_autocomplete_name="first_name",prefix="author",title="Author",user_based=False)
 
     def get(self, request):
         
         target_input_words = []
         
+        # Getting nested_fields
+        self.initalize_nested_fields()
+        
         #creating a new form
         form = forms.BookForm()
-        formA, target_input_id = self.create_autocomplete_form(request,model=models.Author,modelForm=forms.AuthorForm,prefix="author",title="Author",label_field="first_name",user_based=False)
+        formA, target_input_id = self.nested_field.autocomplete_form(request)
             
         target_input_words.append(target_input_id)
         target_input_words = ",".join(target_input_words)
+        print(target_input_words)
            
         return render(request, 'dictionary/bookform.html', {'form':form,'formA':formA,'target_input_words':target_input_words})
 
@@ -71,15 +81,10 @@ class CreateTranslationView(LoginRequiredMixin,View):
 
     def initalize_nested_fields(self):
         self.nested_fields = []
-        self.nested_fields.append(TranslationForeignKeyTranslationField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",label_field="word",user_based=False))
+        self.nested_fields.append(TranslationForeignKeyTranslationField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",user_based=False))
 
     def get(self, request, slug_book=None):
-        
-        if "slug_book" in self.kwargs:
-            slug_book = self.kwargs['slug_book']
-        else:
-            slug_book = None
-        
+    
         # Getting nested_fields
         self.initalize_nested_fields()
         
@@ -206,8 +211,7 @@ class UpdateTranslationView(LoginRequiredMixin,View):
 
     def initalize_nested_fields(self):
         self.nested_fields = []
-        # field_autocomplete_name,label_field,user_based
-        self.nested_fields.append(TranslationForeignKeyTranslationField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",label_field="word",user_based=False))
+        self.nested_fields.append(TranslationForeignKeyTranslationField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",user_based=False))
 
     def get(self, request,slug,slug_book=None):
         

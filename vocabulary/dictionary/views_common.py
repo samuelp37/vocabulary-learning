@@ -4,8 +4,8 @@ from django.utils.text import slugify
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.db import models as djangoModel
 
-from .models import Word
-from .forms import WordForm
+from .models import Word, Author
+from .forms import WordForm, AuthorForm
 
 
 # Utilities
@@ -36,7 +36,7 @@ def get_all_fields_from_form(instance):
 
 class AutoCompletionNestedField():
 
-    def __init__(self,model_name,model_form_name,field_autocomplete_name,prefix,title,label_field,user_based):
+    def __init__(self,model_name,model_form_name,field_autocomplete_name,prefix,title,user_based):
         self.model_name = model_name
         self.model_form_name = model_form_name
         self.model = str_to_class(self.model_name)
@@ -44,17 +44,12 @@ class AutoCompletionNestedField():
         self.field_autocomplete_name = field_autocomplete_name
         self.prefix = prefix
         self.title = title
-        self.label_field = label_field
         self.user_based = user_based
         
     def get(self,request):
         return self.autocomplete_api(request)
 
     def autocomplete_api(self,request,max_number_suggestions=3):
-
-        authorized_models = ["Word"]
-        if self.model_name not in authorized_models:
-            return HttpResponseForbidden('Unauthorized access')
            
         if request.is_ajax():
         
@@ -93,7 +88,7 @@ class AutoCompletionNestedField():
             else:
                 form = self.model_form(prefix=self.prefix, instance=getattr(pre_instance,self.prefix))
         
-        target_input_id = "#id_"+form.prefix+"-"+self.label_field
+        target_input_id = "#id_"+form.prefix+"-"+self.field_autocomplete_name
         form.title = self.title
         form.list_fields = get_all_fields_from_form(self.model_form)
                 
@@ -101,15 +96,14 @@ class AutoCompletionNestedField():
         
 class TranslationForeignKeyTranslationField():
 
-    def __init__(self,model_name,model_form_name,field_autocomplete_name,label_field,user_based=False):
+    def __init__(self,model_name,model_form_name,field_autocomplete_name,user_based=False):
     
         self.field_autocomplete_name = field_autocomplete_name
-        self.label_field = label_field
         self.user_based = user_based
     
         self.autocomplete_fields = []
-        self.autocomplete_fields.append(AutoCompletionNestedField(model_name=model_name,model_form_name=model_form_name,field_autocomplete_name=field_autocomplete_name,prefix="original_"+self.label_field,title="Original "+self.label_field,label_field=self.label_field,user_based=self.user_based))
-        self.autocomplete_fields.append(AutoCompletionNestedField(model_name=model_name,model_form_name=model_form_name,field_autocomplete_name=field_autocomplete_name,prefix="translated_"+self.label_field,title="Translated "+self.label_field,label_field=self.label_field,user_based=self.user_based))
+        self.autocomplete_fields.append(AutoCompletionNestedField(model_name=model_name,model_form_name=model_form_name,field_autocomplete_name=field_autocomplete_name,prefix="original_"+self.field_autocomplete_name,title="Original "+self.field_autocomplete_name,user_based=self.user_based))
+        self.autocomplete_fields.append(AutoCompletionNestedField(model_name=model_name,model_form_name=model_form_name,field_autocomplete_name=field_autocomplete_name,prefix="translated_"+self.field_autocomplete_name,title="Translated "+self.field_autocomplete_name,user_based=self.user_based))
         
     def initialize_get(self,request,pre_instance=None):
     
@@ -155,7 +149,7 @@ class TranslationForeignKeyTranslationField():
         
     def update_variables_dict(self,variables_dict):
         new_dict = {}
-        new_dict['formA_'+self.label_field] = self.forms[0]
-        new_dict['formB_'+self.label_field] = self.forms[1]
+        new_dict['formA_'+self.field_autocomplete_name] = self.forms[0]
+        new_dict['formB_'+self.field_autocomplete_name] = self.forms[1]
         variables_dict['target_input_words'] += self.target_input_words
         variables_dict.update(new_dict)

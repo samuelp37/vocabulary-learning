@@ -1,6 +1,18 @@
 {% load crispy_forms_tags %}
+{% load static %}
+<script type="text/javascript">
+	var target_words = "{{ target_input_words }}";
+</script>
+
+<script src="{% static 'dictionary/dictionary/js/autocomplete_form.js' %}"></script>
+
 
 <div class="adding_item">
+	<div class="parameters" style="display:none">
+		<div class="url_autocomplete">{% url 'autocomplete_author' %}</div>
+		<div class="prefix">{{ form.prefix }}</div>
+		<div class="list_fields">{{ form.list_fields|safe }}</div>
+	</div>
 	<fieldset>
 		<legend>{{ form.title }}</legend>
 		<div class="row">
@@ -11,10 +23,7 @@
 			{{ form.last_name|as_crispy_field }}
 		  </div>
 		</div>
-		<ul class="list-group list_words" style="display:none">
-		  {% for key, values in authors.items %}
-			<li class="list-group-item" onClick="choose(this,'id_{{ form.prefix }}',{{ form.list_fields }},{{ values }});">{{ values|last }}</li>
-		  {% endfor %}
+		<ul class="list-group list_words">
 		</ul>
 	</fieldset>
 </div>

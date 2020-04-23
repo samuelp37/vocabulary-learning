@@ -19,5 +19,7 @@ urlpatterns = [
     path('member/books/details/<str:slug_book>/vocabulary/update/<str:slug>', views.UpdateTranslationView.as_view(), name='update_translation_book'),
     path('member/books/details/<str:slug_book>/vocabulary/view/<str:slug>', views.TranslationView.as_view(), name='view_translation_book'),
     
-    path('ajax/autocomplete/word', views.WordAutocompleteView.as_view(), name='autocomplete_word')
+    path('ajax/autocomplete/word', views.WordAutocompleteView.as_view(), name='autocomplete_word'),
+    path('ajax/autocomplete/author', views.AuthorAutocompleteView.as_view(), name='autocomplete_author'),
+
 ]
