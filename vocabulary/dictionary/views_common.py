@@ -32,7 +32,7 @@ def get_all_fields_from_form(instance):
             fields.append(field)
     return fields
     
-# Generic class
+# Auto-completion fields class
 
 class AutoCompletionNestedField():
 
@@ -93,6 +93,25 @@ class AutoCompletionNestedField():
         form.list_fields = get_all_fields_from_form(self.model_form)
                 
         return form, target_input_id
+        
+    def initialize_post(self,request):
+    
+        self.form, _ = self.autocomplete_form(request)
+        self.item = None
+        
+        if self.form.is_valid():
+            self.item, bool = self.model.objects.get_or_create(**self.form.cleaned_data)
+            return True
+        else:
+            print("Form errors :")
+            print(self.form.errors)
+            print(self.form.non_field_errors())
+            
+        return False
+        
+    def update_main_form(self,form):
+   
+        setattr(form, self.prefix, self.item)
         
 class TranslationForeignKeyTranslationField():
 

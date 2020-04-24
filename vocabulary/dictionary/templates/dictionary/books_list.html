@@ -27,9 +27,11 @@ Lectures list
 						<i class="fa fa-pencil" aria-hidden="true"></i>
 					</button>
 				</a>
-				<button class="btn btn-danger">
-					<i class="fa fa-times" aria-hidden="true"></i>
-				</button>
+				<a href="{% url 'delete_book' slug_book=book.slug %}">
+					<button class="btn btn-danger">
+						<i class="fa fa-times" aria-hidden="true"></i>
+					</button>
+				</a>
 			</div>
 		</li>
 	{% empty %}
