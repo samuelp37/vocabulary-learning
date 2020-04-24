@@ -59,6 +59,9 @@ class AutoCompletionView(View):
     def post_save(self,update,**kwargs):
         pass
         
+    def clean_useless_records(self):
+        pass
+        
     def get(self, request, **kwargs):
         
         # Getting pre-instance
@@ -84,7 +87,7 @@ class AutoCompletionView(View):
         
         target_input_words = ",".join(target_input_words)
         variables_dict['target_input_words'] = target_input_words
-        print(variables_dict)
+        
         return render(request, self.template_path, variables_dict)
         
     def post(self, request, **kwargs):
@@ -115,6 +118,7 @@ class AutoCompletionView(View):
                 self.item.save()
                 
                 redirection = self.post_save(update,**kwargs)
+                self.clean_useless_records()
                 if redirection is not None:
                     return redirection
                 

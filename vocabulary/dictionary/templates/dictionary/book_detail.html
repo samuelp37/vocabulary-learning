@@ -39,5 +39,5 @@ Lectures list
 		<button type="submit" class="btn btn-success">Add a new word</button>
 	</a>
 	<br><br>
-	{% include "dictionary/list_words_abstract.html" with translations=book.translations %}
+	{% include "dictionary/list_words_abstract.html" with translations=book.translations slug_book=book.slug %}
 {% endblock %}

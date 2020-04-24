@@ -52,6 +52,11 @@ class CreateUpdateBookView(LoginRequiredMixin,AutoCompletionView):
         self.item.user = request.user
         self.item.slug = slugify(self.item.title)
         
+    def clean_useless_records(self):
+        for author in models.Author.objects.all():
+            if not models.Book.objects.filter(author=author):
+                author.delete()
+        
     def redirect_success(self,request,**kwargs):
         return HttpResponseRedirect(reverse('list_book'))
         
@@ -74,6 +79,11 @@ class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
     def set_slug_user(self, request):
         self.item.user = request.user
         self.item.slug = slugify(self.nested_fields[0].item.__str__() + "-" + self.nested_fields[1].item.__str__())
+        
+    def clean_useless_records(self):
+        for word in models.Word.objects.all():
+            if not models.Translation.objects.filter(Q(original_word=word)|Q(translated_word=word)):
+                word.delete()
         
     def post_save(self,update,**kwargs):
         if "slug_book" in kwargs:

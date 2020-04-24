@@ -17,7 +17,7 @@
 				  <td class="align-middle">{{ translation.date_added|date:'d/m/Y' }}</td>
 				  <td>
 				    {% if slug_book %}
-					<a href="{% url 'view_translation_book' slug_book=book.slug slug=translation.slug %}">
+					<a href="{% url 'view_translation_book' slug_book=slug_book slug=translation.slug %}">
 					{% else %}
 					<a href="{% url 'details_translation' slug=translation.slug %}">
 					{% endif %}
@@ -28,7 +28,7 @@
 				  </td>
 				  <td>
 					{% if slug_book %}
-				    <a href="{% url 'update_translation_book' slug_book=book.slug slug=translation.slug %}">
+				    <a href="{% url 'update_translation_book' slug_book=slug_book slug=translation.slug %}">
 					{% else %}
 					<a href="{% url 'update_translation' slug=translation.slug %}" method="post">
 					{% endif %}
@@ -39,7 +39,7 @@
 				  </td>
 				  <td>
 				    {% if slug_book %}
-				    <a href="{% url 'delete_translation_book' slug_book=book.slug slug=translation.slug %}">
+				    <a href="{% url 'delete_translation_book' slug_book=slug_book slug=translation.slug %}">
 					{% else %}
 					<a href="{% url 'delete_translation' slug=translation.slug %}" method="post">
 					{% endif %}
