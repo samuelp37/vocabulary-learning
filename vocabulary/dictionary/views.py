@@ -36,162 +36,62 @@ class AuthorAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
     def __init__(self):
         AutoCompletionNestedField.__init__(self,model_name="Author",model_form_name="AuthorForm",field_autocomplete_name="first_name",prefix=None,title=None,user_based=False)
 
-class CreateUpdateBookView(LoginRequiredMixin,View):
+class CreateUpdateBookView(LoginRequiredMixin,AutoCompletionView):
 
-    def initalize_nested_fields(self):
-        self.nested_fields = []
-        self.nested_fields.append(AutoCompletionNestedField(model_name="Author",model_form_name="AuthorForm",field_autocomplete_name="first_name",prefix="author",title="Author",user_based=False))
+    def __init__(self):
+        model = models.Book
+        model_form = forms.BookForm
+        main_slug_name = "slug_book"
+        slugs_list = []
+        template_path = 'dictionary/bookform.html'
+        nested_fields = []
+        nested_fields.append(AutoCompletionNestedField(model_name="Author",model_form_name="AuthorForm",field_autocomplete_name="first_name",prefix="author",title="Author",user_based=False))
+        AutoCompletionView.__init__(self,model=model,model_form=model_form,main_slug_name=main_slug_name,slugs_list=slugs_list,template_path=template_path,nested_fields=nested_fields)        
 
-    def get(self, request, slug_book=None):
+    def set_slug_user(self, request):
+        self.item.user = request.user
+        self.item.slug = slugify(self.item.title)
         
-        target_input_words = []
+    def redirect_success(self,request,**kwargs):
+        return HttpResponseRedirect(reverse('list_book'))
         
-        # Getting nested_fields
-        self.initalize_nested_fields()
+    def redirect_fail(self,request,**kwargs):
+        return self.get(request)
         
-        # Getting pre-instance
-        pre_instance = models.Book.objects.filter(slug=slug_book).first()
-        
-        # Creating a new form
-        if pre_instance is None:
-            form = forms.BookForm()
-        else:
-            form = forms.BookForm(instance=pre_instance)
-            
-        variables_dict = {'form':form,'slug_book':slug_book,'target_input_words':""}
-          
-        #creating nested form Author
-        formA, target_input_id = self.nested_fields[0].autocomplete_form(request,pre_instance)
-            
-        target_input_words.append(target_input_id)
-        target_input_words = ",".join(target_input_words)
-        
-        return render(request, 'dictionary/bookform.html', {'form':form,'formA':formA,'slug_book':slug_book,'target_input_words':target_input_words})
+class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
 
-    def post(self, request,slug_book=None):
-    
-        # Initialize main form
-        pre_instance = models.Book.objects.filter(slug=slug_book).first()
+    def __init__(self):
+        model = models.Translation
+        model_form = forms.TranslationForm
+        main_slug_name = "slug"
+        slugs_list = ["slug_book"]
+        template_path = 'dictionary/vocform.html'
+        nested_fields = []
+        nested_fields.append(AutoCompletionNestedField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix="original_word",title="Original word",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix="translated_word",title="Translated word",user_based=False))
+        AutoCompletionView.__init__(self,model=model,model_form=model_form,main_slug_name=main_slug_name,slugs_list=slugs_list,template_path=template_path,nested_fields=nested_fields)        
+
+    def set_slug_user(self, request):
+        self.item.user = request.user
+        self.item.slug = slugify(self.nested_fields[0].item.__str__() + "-" + self.nested_fields[1].item.__str__())
         
-        if pre_instance is None:
-            form = forms.BookForm(request.POST)
-            update = False
-        else:
-            form = forms.BookForm(request.POST,instance=pre_instance)
-            update = True
-    
-        # Getting nested_fields
-        self.initalize_nested_fields()
-        
-        success = True
-        for field in self.nested_fields:
-            success = field.initialize_post(request)
-            if not success:
-                break
-        
-        if success:
-            
-            if form.is_valid():
-                book = form.save(commit=False)
-                for field in self.nested_fields:
-                    field.update_main_form(book)
-                book.user = request.user
-                book.slug = slugify(book.title)
-                book.save()
+    def post_save(self,update,**kwargs):
+        if "slug_book" in kwargs:
+            if not update:
+                book = get_object_or_404(models.Book, slug=kwargs['slug_book'])
+                translation_link = models.TranslationLink()
+                translation_link.item = self.item
+                translation_link.book = book
+                id_translationlink = translation_link.save()
                 
-                # Clean-up ot the words not referenced anywhere
-                for author in models.Author.objects.all():
-                    if not models.Book.objects.filter(author=author):
-                        author.delete()
-                
-                return HttpResponseRedirect(reverse('list_book'))
+            return HttpResponseRedirect(reverse('details_book', kwargs={'slug_book':kwargs['slug_book']}))
         
+    def redirect_success(self,request,**kwargs):
+        return HttpResponseRedirect(reverse('list_translations'))
+        
+    def redirect_fail(self,request,**kwargs):
         return self.get(request)
 
-class CreateUpdateTranslationView(LoginRequiredMixin,View):
-
-    def initalize_nested_fields(self):
-        self.nested_fields = []
-        self.nested_fields.append(TranslationForeignKeyTranslationField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",user_based=False))
-
-    def get(self, request, slug=None, slug_book=None):
-    
-        # Getting nested_fields
-        self.initalize_nested_fields()
-        
-        # Getting pre-instance
-        pre_instance = models.Translation.objects.filter(slug=slug).first()
-        
-        # Creating a new form
-        if pre_instance is None:
-            form = forms.TranslationForm()
-        else:
-            form = forms.TranslationForm(instance=pre_instance)
-        variables_dict = {'form':form,'slug':slug,'slug_book':slug_book,'target_input_words':""}
-        
-        # Creating nested forms
-        for field in self.nested_fields:
-            field.initialize_get(request,pre_instance)
-            field.update_variables_dict(variables_dict)
-          
-        return render(request, 'dictionary/vocform.html', variables_dict)
-
-    def post(self, request, slug=None, slug_book=None):
-    
-        # Initialize main form
-        pre_instance = models.Translation.objects.filter(slug=slug).first()
-        
-        if pre_instance is None:
-            form = forms.TranslationForm(request.POST)
-            update = False
-        else:
-            form = forms.TranslationForm(request.POST,instance=pre_instance)
-            update = True
-    
-        # Getting nested_fields
-        self.initalize_nested_fields()
-        
-        success = True
-        for field in self.nested_fields:
-            success = field.initialize_post(request)
-            if not success:
-                break
-        
-        if success:
-            
-            if form.is_valid():
-                translate = form.save(commit=False)
-                for field in self.nested_fields:
-                    field.update_main_form(translate)
-                translate.user = request.user
-                translate_item = translate.save()
-                
-                # Clean-up ot the words not referenced anywhere
-                for word in models.Word.objects.all():
-                    if not models.Translation.objects.filter(Q(original_word=word)|Q(translated_word=word)):
-                        word.delete()
-                
-                if slug_book is not None:
-                    if not update:
-                        book = get_object_or_404(models.Book, slug=slug_book)
-                        translation_link = models.TranslationLink()
-                        translation_link.item = translate
-                        translation_link.book = book
-                        id_translationlink = translation_link.save()
-                        
-                    return HttpResponseRedirect(reverse('details_book', kwargs={'slug_book':slug_book}))
-                    
-                return HttpResponseRedirect(reverse('list_translations'))
-                
-            else:
-                print("Error main form")
-                print(form.errors)
-                
-        else:
-            print("Adding words has not worked")
-    
-        return self.get(request)
-   
 class BooksListView(LoginRequiredMixin,ListView):
 
     model = models.Book

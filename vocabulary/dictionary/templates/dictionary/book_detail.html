@@ -15,6 +15,11 @@ Lectures list
 	<a href="{% url 'update_book' slug_book=book.slug %}">
 		<button type="submit" class="btn btn-success">Update the book informations</button>
 	</a>
+	<a href="{% url 'delete_book' slug_book=book.slug %}">
+		<button class="btn btn-danger">
+			Delete the book
+		</button>
+	</a>
 	<br><br>
 	<li class="list-group-item d-flex justify-content-between align-items-center">
 		Subtitle : {{ book.subtitle }}
@@ -34,48 +39,5 @@ Lectures list
 		<button type="submit" class="btn btn-success">Add a new word</button>
 	</a>
 	<br><br>
-	<table class="table">
-	  <thead class="thead-dark">
-		<tr>
-		  <th scope="col">Original word</th>
-		  <th scope="col">Translated word</th>
-		  <th scope="col">Added on</th>
-		  <th scope="col"></th>
-		  <th scope="col"></th>
-		  <th scope="col"></th>
-		</tr>
-	  </thead>
-	  <tbody>
-		  {% for translation in book.translations.all %}
-			  <tr>
-				  <td class="align-middle">{{ translation.original_word.word }} ({{ translation.original_word.gender }})</td>
-				  <td class="align-middle">{{ translation.translated_word.word }} ({{ translation.translated_word.gender.short }})</td>
-				  <td class="align-middle">{{ translation.date_added|date:'d/m/Y' }}</td>
-				  <td>
-					<a href="{% url 'view_translation_book' slug_book=book.slug slug=translation.slug %}">
-						<button class="btn btn-primary">
-							<i class="fa fa-eye" aria-hidden="true"></i>
-						</button>
-					</a>
-				  </td>
-				  <td>
-				    <a href="{% url 'update_translation_book' slug_book=book.slug slug=translation.slug %}">
-					  <button class="btn btn-success">
-				         <i class="fa fa-pen" aria-hidden="true"></i>
-					  </button>
-					</a>
-				  </td>
-				  <td>
-				    <a href="{% url 'delete_translation_book' slug_book=book.slug slug=translation.slug %}">
-					  <button class="btn btn-danger">
-						<i class="fa fa-times" aria-hidden="true"></i>
-					  </button>
-					</a>
-				  </td>
-			  </tr>
-		  {% empty %}
-		  No translations yet.
-	      {% endfor %}
-      </tbody>
-	</table>
+	{% include "dictionary/list_words_abstract.html" with translations=book.translations %}
 {% endblock %}

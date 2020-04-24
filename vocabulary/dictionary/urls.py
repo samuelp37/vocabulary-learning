@@ -9,6 +9,7 @@ urlpatterns = [
     path('member/vocabulary/list', views.TranslationListView.as_view(), name='list_translations'),
     path('member/vocabulary/details/<str:slug>', views.TranslationView.as_view(), name='details_translation'),
     path('member/vocabulary/update/<str:slug>', views.CreateUpdateTranslationView.as_view(), name='update_translation'),
+    path('member/vocabulary/delete/<str:slug>', views.DeleteTranslationView.as_view(), name='delete_translation'),
     
     path('member/books/add', views.CreateUpdateBookView.as_view(), name='add_book'),
     path('member/books/update/<str:slug_book>', views.CreateUpdateBookView.as_view(), name='update_book'),

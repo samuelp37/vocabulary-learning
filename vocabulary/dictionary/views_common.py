@@ -1,8 +1,10 @@
 import sys
-
+from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.db import models as djangoModel
+from django.views.generic.base import View
+from django.urls import reverse
 
 from .models import Word, Author
 from .forms import WordForm, AuthorForm
@@ -31,6 +33,95 @@ def get_all_fields_from_form(instance):
         if field not in fields:
             fields.append(field)
     return fields
+    
+# Auto-completion view
+
+class AutoCompletionView(View):
+
+    def __init__(self,model,model_form,main_slug_name,slugs_list,template_path,nested_fields):
+        self.model = model
+        self.model_form = model_form
+        self.main_slug_name = main_slug_name
+        self.slugs_list = slugs_list
+        self.template_path = template_path
+        self.nested_fields = nested_fields
+        
+    def set_slug_user(self, request):
+        self.item.user = self.item.user
+        self.item.slug = slugify(self.item.title)
+        
+    def redirect_success(self,request,**kwargs):
+        return HttpResponseRedirect(reverse('list_book'))
+        
+    def redirect_fail(self,request,**kwargs):
+        return self.get(request)
+        
+    def post_save(self,update,**kwargs):
+        pass
+        
+    def get(self, request, **kwargs):
+        
+        # Getting pre-instance
+        pre_instance = self.model.objects.filter(slug=kwargs.get(self.main_slug_name)).first()
+        
+        # Creating a new form
+        if pre_instance is None:
+            form = self.model_form()
+        else:
+            form = self.model_form(instance=pre_instance)
+            
+        variables_dict = {'form':form,self.main_slug_name:kwargs.get(self.main_slug_name)}
+          
+        for slug in self.slugs_list:
+            variables_dict[slug] = kwargs.get(slug)
+          
+        target_input_words = []
+        #creating nested autocomplete forms
+        for field in self.nested_fields:
+            form, target_input_id = field.autocomplete_form(request,pre_instance)
+            target_input_words.append(target_input_id)
+            variables_dict["form_"+field.prefix] = form
+        
+        target_input_words = ",".join(target_input_words)
+        variables_dict['target_input_words'] = target_input_words
+        print(variables_dict)
+        return render(request, self.template_path, variables_dict)
+        
+    def post(self, request, **kwargs):
+    
+        # Initialize main form
+        pre_instance = self.model.objects.filter(slug=kwargs.get(self.main_slug_name)).first()
+        
+        if pre_instance is None:
+            form = self.model_form(request.POST)
+            update = False
+        else:
+            form = self.model_form(request.POST,instance=pre_instance)
+            update = True
+        
+        success = True
+        for field in self.nested_fields:
+            success = field.initialize_post(request)
+            if not success:
+                break
+        
+        if success:
+            
+            if form.is_valid():
+                self.item = form.save(commit=False)
+                for field in self.nested_fields:
+                    field.update_main_form(self.item)
+                self.set_slug_user(request)
+                self.item.save()
+                
+                redirection = self.post_save(update,**kwargs)
+                if redirection is not None:
+                    return redirection
+                
+                return self.redirect_success(request,**kwargs)
+        
+        return self.redirect_fail(request,**kwargs)
+
     
 # Auto-completion fields class
 
@@ -112,63 +203,3 @@ class AutoCompletionNestedField():
     def update_main_form(self,form):
    
         setattr(form, self.prefix, self.item)
-        
-class TranslationForeignKeyTranslationField():
-
-    def __init__(self,model_name,model_form_name,field_autocomplete_name,user_based=False):
-    
-        self.field_autocomplete_name = field_autocomplete_name
-        self.user_based = user_based
-    
-        self.autocomplete_fields = []
-        self.autocomplete_fields.append(AutoCompletionNestedField(model_name=model_name,model_form_name=model_form_name,field_autocomplete_name=field_autocomplete_name,prefix="original_"+self.field_autocomplete_name,title="Original "+self.field_autocomplete_name,user_based=self.user_based))
-        self.autocomplete_fields.append(AutoCompletionNestedField(model_name=model_name,model_form_name=model_form_name,field_autocomplete_name=field_autocomplete_name,prefix="translated_"+self.field_autocomplete_name,title="Translated "+self.field_autocomplete_name,user_based=self.user_based))
-        
-    def initialize_get(self,request,pre_instance=None):
-    
-        self.target_input_words = []
-        self.forms = []
-        print(pre_instance)
-        for field in self.autocomplete_fields:
-            form, target_input_id = field.autocomplete_form(request,pre_instance=pre_instance)
-            self.forms.append(form)
-            self.target_input_words.append(target_input_id)
-        
-        self.target_input_words = ",".join(self.target_input_words)
-        
-    def initialize_post(self,request):
-    
-        self.forms = []
-        for field in self.autocomplete_fields:
-            form, _ = field.autocomplete_form(request)
-            self.forms.append(form)
-        
-        self.formA, self.formB = self.forms
-        self.itemA, self.itemB = None, None
-        
-        if self.formA.is_valid() and self.formB.is_valid():
-            self.itemA, boolA = self.autocomplete_fields[0].model.objects.get_or_create(**self.formA.cleaned_data)
-            self.itemB, boolB = self.autocomplete_fields[1].model.objects.get_or_create(**self.formB.cleaned_data)
-            return True
-        else:
-            print("Form A errors :")
-            print(self.formA.errors)
-            print(self.formA.non_field_errors())
-            print("Form B errors :")
-            print(self.formB.errors)
-            print(self.formB.non_field_errors())
-            
-        return False
-            
-    def update_main_form(self,form):
-   
-        setattr(form, self.autocomplete_fields[0].prefix, self.itemA)
-        setattr(form, self.autocomplete_fields[1].prefix, self.itemB)
-        setattr(form, "slug", slugify(self.itemA.__str__() + "-" + self.itemB.__str__()))
-        
-    def update_variables_dict(self,variables_dict):
-        new_dict = {}
-        new_dict['formA_'+self.field_autocomplete_name] = self.forms[0]
-        new_dict['formB_'+self.field_autocomplete_name] = self.forms[1]
-        variables_dict['target_input_words'] += self.target_input_words
-        variables_dict.update(new_dict)

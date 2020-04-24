@@ -11,29 +11,22 @@ Lectures list
 {% block body %}
 	<h1>Translations</h1>
 	<br>
-	<table class="table">
-	  <thead class="thead-dark">
-		<tr>
-		  <th scope="col">Original word</th>
-		  <th scope="col">Translated word</th>
-		  <th scope="col">Added on</th>
-		</tr>
-	  </thead>
-	  <tbody>
-		  {% for translation in object_list %}
-		  <tr>
-			  <td>{{ translation.original_word.word }} ({{ translation.original_word.gender }})</td>
-			  <td>{{ translation.translated_word.word }} ({{ translation.translated_word.gender.short }})</td>
-			  <td>{{ translation.date_added|date:'d/m/Y' }}</td>
-		  </tr>
-		  {% empty %}
-		  <div class="alert alert-info" role="alert">
-		  No translation yet.
-		  </div>
-		  <br>
-	      {% endfor %}
-      </tbody>
-	</table>
+	{% if is_paginated %}
+        <div class="pagination">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+                <span class="page-current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+	{% include "dictionary/list_words_abstract.html" with translations=object_list %}
 	{% if is_paginated %}
         <div class="pagination">
             <span class="page-links">
