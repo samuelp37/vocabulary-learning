@@ -8,8 +8,6 @@ Adding a translation
 {% load crispy_forms_tags %}
 {% load static %}
 
-{{ words|json_script:"words_list" }}
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
@@ -20,18 +18,26 @@ Adding a translation
 
 {% block body %}
 
-<h1>Add a translation</h1>
+<h1>Add/Update a translation</h1>
 <br>
 
-{% if slug %}
-<form action="{% url 'add_word_book' slug=slug %}" method="post">
+{% if slug_book %}
+	{% if slug %}
+	<form action="{% url 'update_translation_book' slug=slug slug_book=slug_book %}" method="post">
+	{% else %}
+	<form action="{% url 'add_word_book' slug_book=slug_book %}" method="post">
+	{% endif %}
 {% else %}
-<form action="{% url 'add' %}" method="post">
+	{% if slug %}
+	<form action="{% url 'update_translation' slug=slug %}" method="post">
+	{% else %}
+	<form action="{% url 'add' %}" method="post">
+	{% endif %}
 {% endif %}
 	{% csrf_token %}
 	{% include "dictionary/addword_form.html" with form=formA_word %}    
 	{% include "dictionary/addword_form.html" with form=formB_word %}  
 	{{ form|crispy }}
-	<button type="submit" class="btn btn-success">Adding the new translation</button>
+	<button type="submit" class="btn btn-success">Adding/Update the translation</button>
 </form>
 {% endblock %}

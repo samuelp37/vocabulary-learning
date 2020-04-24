@@ -59,14 +59,18 @@ Lectures list
 					</a>
 				  </td>
 				  <td>
-					<button class="btn btn-success">
-						<i class="fa fa-pen" aria-hidden="true"></i>
-					</button>
+				    <a href="{% url 'update_translation_book' slug_book=book.slug slug=translation.slug %}">
+					  <button class="btn btn-success">
+				         <i class="fa fa-pen" aria-hidden="true"></i>
+					  </button>
+					</a>
 				  </td>
 				  <td>
-					<button class="btn btn-danger">
+				    <a href="{% url 'delete_translation_book' slug_book=book.slug slug=translation.slug %}">
+					  <button class="btn btn-danger">
 						<i class="fa fa-times" aria-hidden="true"></i>
-					</button>
+					  </button>
+					</a>
 				  </td>
 			  </tr>
 		  {% empty %}
