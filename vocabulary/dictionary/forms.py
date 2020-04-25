@@ -1,4 +1,4 @@
-from dictionary.models import Translation, Word, Book, Author
+from dictionary.models import Translation, Word, Book, Author, Adjective, Verb, Expression
 from django.forms import ModelForm, Textarea, DateInput
 from django.contrib.admin import widgets 
 
@@ -20,16 +20,27 @@ class WordForm(ModelForm):
     
         model = Word
         fields = "__all__"
-        """
-        widgets = {
-            'context_sentence': Textarea(attrs={'cols': 80, 'rows': 2}),
-        }
-        """
         
-    """
-    class Media:
-        js = ('js/search_list_word.js',)
-    """
+class AdjectiveForm(ModelForm):
+
+    class Meta:
+    
+        model = Adjective
+        fields = "__all__"
+        
+class VerbForm(ModelForm):
+
+    class Meta:
+    
+        model = Verb
+        fields = "__all__"
+        
+class ExpressionForm(ModelForm):
+
+    class Meta:
+    
+        model = Expression
+        fields = "__all__"
     
 class BookForm(ModelForm):
 

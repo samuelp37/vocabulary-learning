@@ -8,6 +8,7 @@ admin.site.register(models.Newspaper)
 admin.site.register(models.Article)
 admin.site.register(models.Gender)
 admin.site.register(models.Word)
+admin.site.register(models.Adjective)
 admin.site.register(models.Translation)
 admin.site.register(models.TranslationLink)
 

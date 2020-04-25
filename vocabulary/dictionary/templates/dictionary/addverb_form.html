@@ -14,21 +14,15 @@ $(document).ready(function(){
 
 <div class="adding_item">
 	<div class="parameters" style="display:none">
-		<div class="url_autocomplete">{% url 'autocomplete_word' %}</div>
+		<div class="url_autocomplete">{% url 'autocomplete_verb' %}</div>
 		<div class="prefix">{{ form.prefix }}</div>
 		<div class="list_fields">{{ form.list_fields|safe }}</div>
 	</div>
 	<fieldset>
 		<legend>{{ form.title }}</legend>
 		<div class="row">
-		  <div class="col-4">
+		  <div class="col-5">
 			{{ form.word|as_crispy_field }}
-		  </div>
-		  <div class="col-4">
-			{{ form.plural|as_crispy_field }}
-		  </div>
-		  <div class="col-2">
-			{{ form.gender|as_crispy_field }}
 		  </div>
 		  <div class="col-2">
 			{{ form.language|as_crispy_field }}

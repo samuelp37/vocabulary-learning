@@ -12,8 +12,8 @@
 	  <tbody>
 		  {% for translation in translations.all %}
 			  <tr>
-				  <td class="align-middle">{{ translation.original_word.word }} ({{ translation.original_word.gender }})</td>
-				  <td class="align-middle">{{ translation.translated_word.word }} ({{ translation.translated_word.gender.short }})</td>
+				  <td class="align-middle">{{ translation.original_str }}</td>
+				  <td class="align-middle">{{ translation.translated_str }}</td>
 				  <td class="align-middle">{{ translation.date_added|date:'d/m/Y' }}</td>
 				  <td>
 				    {% if slug_book %}

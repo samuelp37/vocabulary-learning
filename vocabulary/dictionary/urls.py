@@ -23,6 +23,8 @@ urlpatterns = [
     path('member/books/details/<str:slug_book>/vocabulary/delete/<str:slug>', views.DeleteTranslationView.as_view(), name='delete_translation_book'),
     
     path('ajax/autocomplete/word', views.WordAutocompleteView.as_view(), name='autocomplete_word'),
+    path('ajax/autocomplete/adjective', views.AdjectiveAutocompleteView.as_view(), name='autocomplete_adj'),
+    path('ajax/autocomplete/verb', views.VerbAutocompleteView.as_view(), name='autocomplete_verb'),
     path('ajax/autocomplete/author', views.AuthorAutocompleteView.as_view(), name='autocomplete_author'),
 
 ]

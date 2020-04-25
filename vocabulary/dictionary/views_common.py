@@ -6,8 +6,8 @@ from django.db import models as djangoModel
 from django.views.generic.base import View
 from django.urls import reverse
 
-from .models import Word, Author
-from .forms import WordForm, AuthorForm
+from .models import Word, Author, Adjective, Verb, Expression
+from .forms import WordForm, AuthorForm, AdjectiveForm, VerbForm, ExpressionForm
 
 
 # Utilities
@@ -62,6 +62,14 @@ class AutoCompletionView(View):
     def clean_useless_records(self):
         pass
         
+    def custom_nested_fields_handler(self,request):
+        success = True
+        for field in self.nested_fields:
+            success = field.initialize_post(request)
+            if not success:
+                return False
+        return success
+        
     def get(self, request, **kwargs):
         
         # Getting pre-instance
@@ -102,11 +110,7 @@ class AutoCompletionView(View):
             form = self.model_form(request.POST,instance=pre_instance)
             update = True
         
-        success = True
-        for field in self.nested_fields:
-            success = field.initialize_post(request)
-            if not success:
-                break
+        success = self.custom_nested_fields_handler(request)
         
         if success:
             
@@ -198,6 +202,7 @@ class AutoCompletionNestedField():
             self.item, bool = self.model.objects.get_or_create(**self.form.cleaned_data)
             return True
         else:
+            self.item = None
             print("Form errors :")
             print(self.form.errors)
             print(self.form.non_field_errors())

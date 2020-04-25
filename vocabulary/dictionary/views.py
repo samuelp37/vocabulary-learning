@@ -30,6 +30,16 @@ class WordAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
 
     def __init__(self):
         AutoCompletionNestedField.__init__(self,model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix=None,title=None,user_based=False)
+        
+class AdjectiveAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
+
+    def __init__(self):
+        AutoCompletionNestedField.__init__(self,model_name="Adjective",model_form_name="AdjectiveForm",field_autocomplete_name="word",prefix=None,title=None,user_based=False)
+        
+class VerbAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
+
+    def __init__(self):
+        AutoCompletionNestedField.__init__(self,model_name="Verb",model_form_name="VerbForm",field_autocomplete_name="word",prefix=None,title=None,user_based=False)
 
 class AuthorAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
 
@@ -72,18 +82,51 @@ class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
         slugs_list = ["slug_book"]
         template_path = 'dictionary/vocform.html'
         nested_fields = []
-        nested_fields.append(AutoCompletionNestedField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix="original_word",title="Original word",user_based=False))
-        nested_fields.append(AutoCompletionNestedField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix="translated_word",title="Translated word",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix="original_word",title="Original name",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix="translated_word",title="Translated name",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Adjective",model_form_name="AdjectiveForm",field_autocomplete_name="word",prefix="original_adj",title="Original adjective",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Adjective",model_form_name="AdjectiveForm",field_autocomplete_name="word",prefix="translated_adj",title="Translated adjective",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Verb",model_form_name="VerbForm",field_autocomplete_name="word",prefix="original_verb",title="Original verb",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Verb",model_form_name="VerbForm",field_autocomplete_name="word",prefix="translated_verb",title="Translated verb",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Expression",model_form_name="ExpressionForm",field_autocomplete_name="expression",prefix="original_exp",title="Original expression",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Expression",model_form_name="ExpressionForm",field_autocomplete_name="expression",prefix="translated_exp",title="Translated expression",user_based=False))
+        
         AutoCompletionView.__init__(self,model=model,model_form=model_form,main_slug_name=main_slug_name,slugs_list=slugs_list,template_path=template_path,nested_fields=nested_fields)        
 
     def set_slug_user(self, request):
         self.item.user = request.user
-        self.item.slug = slugify(self.nested_fields[0].item.__str__() + "-" + self.nested_fields[1].item.__str__())
+        print("-".join([field.item.__str__() for field in self.nested_fields]))
+        self.item.slug = slugify("-".join([field.item.__str__() for field in self.nested_fields]))
+        
+    def custom_nested_fields_handler(self,request):
+        """
+        Special for this particular case : the user can choose to il la subset of {name,adjective,verb,expression} not empty.
+        Each one of this option is represented by two autocomplete fields
+        """
+        success = False
+        for i in range(int(len(self.nested_fields)/2)):
+            
+            field_0, field_1 = self.nested_fields[i*2],self.nested_fields[i*2+1]
+            bool_field0 = field_0.initialize_post(request)
+            bool_field1 = field_1.initialize_post(request)
+            if bool_field0 and bool_field1:
+                success = True
+            print(success)
+        return success
         
     def clean_useless_records(self):
         for word in models.Word.objects.all():
             if not models.Translation.objects.filter(Q(original_word=word)|Q(translated_word=word)):
                 word.delete()
+        for adj in models.Adjective.objects.all():
+            if not models.Translation.objects.filter(Q(original_adj=adj)|Q(translated_adj=adj)):
+                adj.delete()
+        for verb in models.Verb.objects.all():
+            if not models.Translation.objects.filter(Q(original_verb=verb)|Q(translated_verb=verb)):
+                verb.delete()
+        for exp in models.Expression.objects.all():
+            if not models.Translation.objects.filter(Q(original_exp=exp)|Q(translated_exp=exp)):
+                exp.delete()
         
     def post_save(self,update,**kwargs):
         if "slug_book" in kwargs:

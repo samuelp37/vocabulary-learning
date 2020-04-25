@@ -13,6 +13,17 @@ Adding a translation
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
 <script src="{% static 'dictionary/dictionary/js/datepicker_bootstrap.js' %}"></script>
+<script src="{% static 'dictionary/dictionary/vendor/bootstrap/js/bootstrap.min.js' %}">
+
+<script>
+$(document).ready(function(){
+    $("#tab_choice_word a").click(function(e){
+        e.preventDefault();
+        $(this).tab('show');
+    });
+});
+
+</script>
 
 {% endblock %}
 
@@ -35,8 +46,42 @@ Adding a translation
 	{% endif %}
 {% endif %}
 	{% csrf_token %}
-	{% include "dictionary/addword_form.html" with form=form_original_word %}    
-	{% include "dictionary/addword_form.html" with form=form_translated_word %}  
+	<div class="translationMain">
+		<ul class="nav nav-pills" id="tab_choice_word">
+			<li class="nav-item">
+				<a href="#name" class="nav-link active" data-toggle="tab">Name</a>
+			</li>
+			<li class="nav-item">
+				<a href="#adjective" class="nav-link" data-toggle="tab">Adjective</a>
+			</li>
+			<li class="nav-item">
+				<a href="#verb" class="nav-link" data-toggle="tab">Verb</a>
+			</li>
+			<li class="nav-item">
+				<a href="#expression" class="nav-link" data-toggle="tab">Expression</a>
+			</li>
+		</ul>
+		<br>
+		<div class="tab-content">
+			<div id="name" class="tab-pane fade show active">
+				{% include "dictionary/addword_form.html" with form=form_original_word %}    
+				{% include "dictionary/addword_form.html" with form=form_translated_word %}  
+			</div>
+			<div class="tab-pane fade" id="adjective">
+				{% include "dictionary/addadj_form.html" with form=form_original_adj %}    
+				{% include "dictionary/addadj_form.html" with form=form_translated_adj %}
+			</div>
+			<div class="tab-pane fade" id="verb">
+				{% include "dictionary/addverb_form.html" with form=form_original_verb %}    
+				{% include "dictionary/addverb_form.html" with form=form_translated_verb %}
+			</div>
+			<div class="tab-pane fade" id="expression">
+				{% include "dictionary/addexpression_form.html" with form=form_original_exp %}    
+				{% include "dictionary/addexpression_form.html" with form=form_translated_exp %}
+			</div>
+		</div>
+	</div>
+	<br>
 	{{ form|crispy }}
 	<button type="submit" class="btn btn-success">Adding/Update the translation</button>
 </form>
