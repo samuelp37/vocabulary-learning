@@ -103,7 +103,7 @@ class Word(models.Model):
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
     def __str__(self):
-        return self.word + "("+self.language.name+")"
+        return self.word + " ("+self.language.name+")"
      
     class Meta:
         verbose_name = "Word"
@@ -116,7 +116,7 @@ class Adjective(models.Model):
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
     def __str__(self):
-        return self.word + "("+self.language.name+")"
+        return self.word + " ("+self.language.name+")"
      
     class Meta:
         verbose_name = "Adjective"
@@ -128,7 +128,7 @@ class Verb(models.Model):
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
     def __str__(self):
-        return self.word + "("+self.language.name+")"
+        return self.word + " ("+self.language.name+")"
      
     class Meta:
         verbose_name = "Verb"
@@ -140,7 +140,7 @@ class Expression(models.Model):
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
     def __str__(self):
-        return self.expression[:30] + "("+self.language.name+")"
+        return self.expression[:30] + " ("+self.language.name+")"
      
     class Meta:
         verbose_name = "Expression"

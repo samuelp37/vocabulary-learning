@@ -1,31 +1,3 @@
-/*
-Javascript enabling to filter words with the ones already present in the database.
-Requirements :
-* The javascript variable target words should be defined and defines the id of the input box for words
-The HTML script should follow the current convention :
-<div class="adding_word">
-	<fieldset>
-		<legend>Original word</legend>
-		<div class="row">
-		  <div class="col-6">
-			{{ form.word|as_crispy_field }}
-		  </div>
-		  <div class="col-2">
-			{{ form.gender|as_crispy_field }}
-		  </div>
-		  <div class="col-4">
-			{{ form.language|as_crispy_field }}
-		  </div>
-		</div>
-		<ul class="list-group list_words" style="display:none">
-		  {% for key, values in words.items %}
-			<li class="list-group-item" onClick="choose(this,'id_{{ form.prefix }}','{{ values.0 }}',{{ values.1}} , {{ values.2 }});">{{ values.0 }}</li>
-		  {% endfor %}
-		</ul>
-	</fieldset>
-</div>
-*/
-
 function get_variable_like_string(item){
 	// Number should be simply displayed, but string should be between quotes
 	//console.log("New item : "+item);

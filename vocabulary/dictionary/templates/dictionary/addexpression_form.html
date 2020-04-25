@@ -4,13 +4,7 @@
 	var target_words = "{{ target_input_words }}";
 </script>
 
-<script>
-$(document).ready(function(){
-	$("input").removeAttr('required');
-	$("textarea").removeAttr('required');
-});
-</script>
-
+<script src="{% static 'dictionary/dictionary/js/fields_not_required.js' %}"></script>
 <script src="{% static 'dictionary/dictionary/js/autocomplete_form.js' %}"></script>
 
 <div class="adding_item">
