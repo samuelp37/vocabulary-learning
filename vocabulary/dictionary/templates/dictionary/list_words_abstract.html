@@ -18,6 +18,10 @@
 				  <td>
 				    {% if slug_book %}
 					<a href="{% url 'view_translation_book' slug_book=slug_book slug=translation.slug %}">
+					{% elif slug_article %}
+					<a href="{% url 'view_translation_article' slug_article=slug_article slug=translation.slug %}">
+					{% elif slug_discussion %}
+					<a href="{% url 'view_translation_discussion' slug_discussion=slug_discussion slug=translation.slug %}">
 					{% else %}
 					<a href="{% url 'details_translation' slug=translation.slug %}">
 					{% endif %}
@@ -29,6 +33,10 @@
 				  <td>
 					{% if slug_book %}
 				    <a href="{% url 'update_translation_book' slug_book=slug_book slug=translation.slug %}">
+					{% elif slug_article %}
+				    <a href="{% url 'update_translation_article' slug_article=slug_article slug=translation.slug %}">
+					{% elif slug_discussion %}
+				    <a href="{% url 'update_translation_discussion' slug_discussion=slug_discussion slug=translation.slug %}">
 					{% else %}
 					<a href="{% url 'update_translation' slug=translation.slug %}" method="post">
 					{% endif %}
@@ -40,6 +48,10 @@
 				  <td>
 				    {% if slug_book %}
 				    <a href="{% url 'delete_translation_book' slug_book=slug_book slug=translation.slug %}">
+					{% elif slug_article %}
+				    <a href="{% url 'delete_translation_article' slug_article=slug_article slug=translation.slug %}">
+					{% elif slug_discussion %}
+				    <a href="{% url 'delete_translation_discussion' slug_discussion=slug_discussion slug=translation.slug %}">
 					{% else %}
 					<a href="{% url 'delete_translation' slug=translation.slug %}" method="post">
 					{% endif %}

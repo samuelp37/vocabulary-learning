@@ -6,11 +6,20 @@ from django.db import models as djangoModel
 from django.views.generic.base import View
 from django.urls import reverse
 
-from .models import Word, Author, Adjective, Verb, Expression
-from .forms import WordForm, AuthorForm, AdjectiveForm, VerbForm, ExpressionForm
+from .models import Word, Author, Adjective, Verb, Expression, Newspaper, Topic
+from .forms import WordForm, AuthorForm, AdjectiveForm, VerbForm, ExpressionForm, NewspaperForm, TopicForm
+import random, string
 
 
 # Utilities
+
+def get_model_chosen(models_list,arg_kwargs):
+    model_chosen = None
+    for model in models_list:
+        if model.extern_slug() in arg_kwargs:
+            model_chosen = model
+            return model_chosen
+    return None
 
 def random_str(n):
     return ''.join(random.choice(string.ascii_letters) for x in range(n))

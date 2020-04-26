@@ -1,4 +1,4 @@
-from dictionary.models import Translation, Word, Book, Author, Adjective, Verb, Expression
+from dictionary.models import Translation, Word, Book, Author, Adjective, Verb, Expression, Newspaper, Article, Topic, Discussion
 from django.forms import ModelForm, Textarea, DateInput
 from django.contrib.admin import widgets 
 
@@ -49,9 +49,37 @@ class BookForm(ModelForm):
         model = Book
         exclude = ['author','slug','translations','user']
         
+class ArticleForm(ModelForm):
+
+    class Meta:
+    
+        model = Article
+        exclude = ['newspaper','slug','translations','user','topic']
+        
+class DiscussionForm(ModelForm):
+
+    class Meta:
+    
+        model = Discussion
+        exclude = ['slug','translations','user','topic']
+        
 class AuthorForm(ModelForm):
 
     class Meta:
     
         model = Author
+        fields = '__all__'
+        
+class NewspaperForm(ModelForm):
+
+    class Meta:
+    
+        model = Newspaper
+        fields = '__all__'
+        
+class TopicForm(ModelForm):
+
+    class Meta:
+    
+        model = Topic
         fields = '__all__'

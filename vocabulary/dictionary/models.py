@@ -32,6 +32,10 @@ class Support(models.Model):
     slug = models.SlugField("Slug",max_length=100,default='',null=True,blank=True)
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     
+    @property
+    def nb_translations(self):
+        return self.translations.all().count()
+    
     def __str__(self):
         return self.title
 
@@ -46,14 +50,21 @@ class Book(Support):
     author = models.ForeignKey('Author',on_delete=models.CASCADE,default='')
     subtitle = models.CharField("Subtitle",max_length=100,default='',null=True,blank=True)
     nb_pages = models.IntegerField("Number of pages",default=-1,null=True,blank=True)
-    translations = models.ManyToManyField('Translation', through='TranslationLink',null=True,blank=True)
+    translations = models.ManyToManyField('Translation', through='TranslationLink')
     
     def __str__(self):
         return self.title + "("+self.author.__str__()+")"
         
-    @property
-    def nb_translations(self):
-        return self.translations.all().count()
+    @staticmethod
+    def extern_slug():
+        return "slug_book"
+       
+    @staticmethod
+    def translation_utils():
+        dict = {}
+        dict["model_link"] = TranslationLink()
+        dict["model_link_attr"] = "book"
+        return dict
     
     class Meta:
         verbose_name = "Book"
@@ -70,18 +81,67 @@ class Newspaper(models.Model):
         verbose_name = "Newspaper"
         verbose_name_plural = "Newspapers"
         
-class Article(Support):
+class Topic(models.Model):
 
-    author = models.ForeignKey('Author',on_delete=models.CASCADE,default='')
-    newspaper = models.ForeignKey('Newspaper',on_delete=models.CASCADE,default='')
-    link = models.TextField("Link to the article",default='',null=True,blank=True)
+    name = models.CharField("Name",max_length=100,default='',null=True,blank=True)
     
     def __str__(self):
-        return self.title + "("+self.newspaper+")"
+        return self.name
+    
+    class Meta:
+        verbose_name = "Topic"
+        verbose_name_plural = "Topics"
+        
+class Article(Support):
+
+    topic = models.ForeignKey('Topic',on_delete=models.CASCADE,default='')
+    newspaper = models.ForeignKey('Newspaper',on_delete=models.CASCADE,default='')
+    link = models.TextField("Link to the article",default='',null=True,blank=True)
+    translations = models.ManyToManyField('Translation', through='TranslationLinkArticle')
+    
+    def __str__(self):
+        return self.title + "("+self.newspaper.name+")"
+        
+    @staticmethod    
+    def extern_slug():
+        return "slug_article"
+        
+    @staticmethod
+    def translation_utils():
+        dict = {}
+        dict["model_link"] = TranslationLinkArticle()
+        dict["model_link_attr"] = "article"
+        return dict
     
     class Meta:
         verbose_name = "Article"
         verbose_name_plural = "Articles"
+        
+class Discussion(Support):
+
+    topic = models.ForeignKey('Topic',on_delete=models.CASCADE,default='')
+    translations = models.ManyToManyField('Translation', through='TranslationLinkDiscussion')
+    
+    original_content = models.TextField("Original content",default='',null=True,blank=True)
+    translated_content = models.TextField("Original content",default='',null=True,blank=True)
+    
+    def __str__(self):
+        return self.title + " ("+self.topic.name+")"
+    
+    @staticmethod
+    def extern_slug():
+        return "slug_discussion"
+    
+    @staticmethod
+    def translation_utils():
+        dict = {}
+        dict["model_link"] = TranslationLinkDiscussion()
+        dict["model_link_attr"] = "discussion"
+        return dict
+    
+    class Meta:
+        verbose_name = "Discussion"
+        verbose_name_plural = "Discussions"
 
 class Gender(models.Model):
 
@@ -190,6 +250,10 @@ class Translation(models.Model):
             return self.translated_verb.word
         elif self.translated_exp:
             return self.translated_exp.expression
+            
+    @staticmethod
+    def get_model_access_list():
+        return [Book,Article,Discussion]
     
     def __str__(self):
         return self.original_str + "-" + self.translated_str
@@ -209,6 +273,30 @@ class TranslationLink(models.Model):
     class Meta:
         verbose_name = "Translation - Book"
         verbose_name_plural = "Translations - Books"
+        
+class TranslationLinkArticle(models.Model):
+	
+    item = models.ForeignKey('Translation',on_delete=models.CASCADE,default='')
+    article = models.ForeignKey('Article',on_delete=models.CASCADE,default='')
+	
+    def __str__(self):
+        return self.article.__str__()+"-"+self.item.__str__()
+		
+    class Meta:
+        verbose_name = "Translation - Article"
+        verbose_name_plural = "Translations - Articles"
+        
+class TranslationLinkDiscussion(models.Model):
+	
+    item = models.ForeignKey('Translation',on_delete=models.CASCADE,default='')
+    discussion = models.ForeignKey('Discussion',on_delete=models.CASCADE,default='')
+	
+    def __str__(self):
+        return self.discussion.__str__()+"-"+self.item.__str__()
+		
+    class Meta:
+        verbose_name = "Translation - Discussion"
+        verbose_name_plural = "Translations - Discussions"
     
         
 class Vocabulary(models.Model):

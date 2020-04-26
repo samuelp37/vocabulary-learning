@@ -38,6 +38,18 @@ $(document).ready(function(){
 	{% else %}
 	<form action="{% url 'add_word_book' slug_book=slug_book %}" method="post">
 	{% endif %}
+{% elif slug_article %}
+	{% if slug %}
+	<form action="{% url 'update_translation_article' slug=slug slug_article=slug_article %}" method="post">
+	{% else %}
+	<form action="{% url 'add_word_article' slug_article=slug_article %}" method="post">
+	{% endif %}
+{% elif slug_discussion %}
+	{% if slug %}
+	<form action="{% url 'update_translation_discussion' slug=slug slug_discussion=slug_discussion %}" method="post">
+	{% else %}
+	<form action="{% url 'add_word_discussion' slug_discussion=slug_discussion %}" method="post">
+	{% endif %}
 {% else %}
 	{% if slug %}
 	<form action="{% url 'update_translation' slug=slug %}" method="post">

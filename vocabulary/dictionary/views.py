@@ -46,6 +46,17 @@ class AuthorAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
     def __init__(self):
         AutoCompletionNestedField.__init__(self,model_name="Author",model_form_name="AuthorForm",field_autocomplete_name="first_name",prefix=None,title=None,user_based=False)
 
+class NewspaperAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
+
+    def __init__(self):
+        AutoCompletionNestedField.__init__(self,model_name="Newspaper",model_form_name="NewspaperForm",field_autocomplete_name="name",prefix=None,title=None,user_based=False)
+
+class TopicAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
+
+    def __init__(self):
+        AutoCompletionNestedField.__init__(self,model_name="Topic",model_form_name="TopicForm",field_autocomplete_name="name",prefix=None,title=None,user_based=False)
+
+
 class CreateUpdateBookView(LoginRequiredMixin,AutoCompletionView):
 
     def __init__(self):
@@ -60,7 +71,7 @@ class CreateUpdateBookView(LoginRequiredMixin,AutoCompletionView):
 
     def set_slug_user(self, request):
         self.item.user = request.user
-        self.item.slug = slugify(self.item.title)
+        self.item.slug = slugify(self.item.title + "-" + random_str(15))
         
     def clean_useless_records(self):
         for author in models.Author.objects.all():
@@ -76,10 +87,12 @@ class CreateUpdateBookView(LoginRequiredMixin,AutoCompletionView):
 class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
 
     def __init__(self):
+        
         model = models.Translation
+        self.models_access_list = model.get_model_access_list()
         model_form = forms.TranslationForm
         main_slug_name = "slug"
-        slugs_list = ["slug_book"]
+        slugs_list = [model.extern_slug() for model in self.models_access_list]
         template_path = 'dictionary/vocform.html'
         nested_fields = []
         nested_fields.append(AutoCompletionNestedField(model_name="Word",model_form_name="WordForm",field_autocomplete_name="word",prefix="original_word",title="Original name",user_based=False))
@@ -95,8 +108,7 @@ class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
 
     def set_slug_user(self, request):
         self.item.user = request.user
-        print("-".join([field.item.__str__() for field in self.nested_fields]))
-        self.item.slug = slugify("-".join([field.item.__str__() for field in self.nested_fields]))
+        self.item.slug = slugify("-".join([field.item.__str__() for field in self.nested_fields]) + "-" +   random_str(15))
         
     def custom_nested_fields_handler(self,request):
         """
@@ -105,13 +117,11 @@ class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
         """
         success = False
         for i in range(int(len(self.nested_fields)/2)):
-            
             field_0, field_1 = self.nested_fields[i*2],self.nested_fields[i*2+1]
             bool_field0 = field_0.initialize_post(request)
             bool_field1 = field_1.initialize_post(request)
             if bool_field0 and bool_field1:
                 success = True
-            print(success)
         return success
         
     def clean_useless_records(self):
@@ -129,15 +139,20 @@ class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
                 exp.delete()
         
     def post_save(self,update,**kwargs):
-        if "slug_book" in kwargs:
-            if not update:
-                book = get_object_or_404(models.Book, slug=kwargs['slug_book'])
-                translation_link = models.TranslationLink()
-                translation_link.item = self.item
-                translation_link.book = book
-                id_translationlink = translation_link.save()
-                
-            return HttpResponseRedirect(reverse('details_book', kwargs={'slug_book':kwargs['slug_book']}))
+    
+        
+        model_chosen = get_model_chosen(self.models_access_list,kwargs)
+        if model_chosen is None:
+            return None
+        
+        dict = model_chosen.translation_utils()
+        if not update:
+            item_support = get_object_or_404(model_chosen, slug=kwargs[model_chosen.extern_slug()])
+            translation_link = dict["model_link"]
+            translation_link.item = self.item
+            setattr(translation_link,dict["model_link_attr"],item_support)
+            id_translationlink = translation_link.save()
+        return HttpResponseRedirect(reverse('details_'+dict["model_link_attr"], kwargs={model_chosen.extern_slug():kwargs[model_chosen.extern_slug()]}))
         
     def redirect_success(self,request,**kwargs):
         return HttpResponseRedirect(reverse('list_translations'))
@@ -193,8 +208,12 @@ class TranslationView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
         
     def get_context_data(self, **kwargs):
         context = super(TranslationView, self).get_context_data(**kwargs)
-        if 'slug_book' in self.kwargs:
-            context['slug_book'] = self.kwargs['slug_book']
+        
+        model_chosen = get_model_chosen(self.model.get_model_access_list(),kwargs)
+        if model_chosen is None:
+            return context
+        
+        context[model_chosen.extern_slug()] = model_chosen.extern_slug()
         return context
         
 class DeleteTranslationView(DeleteView):
@@ -206,10 +225,13 @@ class DeleteTranslationView(DeleteView):
         return get_object_or_404(models.Translation,slug=self.kwargs['slug'])
         
     def get_success_url(self):
-        if "slug_book" in self.kwargs:
-            return reverse('details_book', kwargs={'slug_book':self.kwargs['slug_book']})
-        else:
+    
+        model_chosen = get_model_chosen(self.model.get_model_access_list(),self.kwargs)
+        if model_chosen is None:
             return reverse('list_translations')
+        else:
+            dict = model_chosen.translation_utils()
+            return reverse('details_'+dict["model_link_attr"], kwargs={model_chosen.extern_slug():self.kwargs[model_chosen.extern_slug()]})
             
 class DeleteBookView(DeleteView):
     model = models.Book
@@ -222,4 +244,118 @@ class DeleteBookView(DeleteView):
     def get_success_url(self):
         return reverse('list_book')
         
+# Articles
+
+class ArticlesListView(LoginRequiredMixin,ListView):
+
+    model = models.Article
+    paginate_by = 10  # if pagination is desired
+    template_name = "dictionary/articles_list.html"
     
+    def get_queryset(self):
+        return models.Article.objects.filter(user=self.request.user)
+        
+class CreateUpdateArticleView(LoginRequiredMixin,AutoCompletionView):
+
+    def __init__(self):
+        model = models.Article
+        model_form = forms.ArticleForm
+        main_slug_name = "slug_article"
+        slugs_list = []
+        template_path = 'dictionary/articleform.html'
+        nested_fields = []
+        nested_fields.append(AutoCompletionNestedField(model_name="Topic",model_form_name="TopicForm",field_autocomplete_name="name",prefix="topic",title="Topic",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Newspaper",model_form_name="NewspaperForm",field_autocomplete_name="name",prefix="newspaper",title="Newspaper",user_based=False))
+        AutoCompletionView.__init__(self,model=model,model_form=model_form,main_slug_name=main_slug_name,slugs_list=slugs_list,template_path=template_path,nested_fields=nested_fields)        
+
+    def set_slug_user(self, request):
+        self.item.user = request.user
+        self.item.slug = slugify(self.item.title + self.item.newspaper.name  + "-" + random_str(15))
+        
+    def clean_useless_records(self):
+        for newspaper in models.Newspaper.objects.all():
+            if not models.Article.objects.filter(newspaper=newspaper):
+                newspaper.delete()
+        
+    def redirect_success(self,request,**kwargs):
+        return HttpResponseRedirect(reverse('list_article'))
+        
+    def redirect_fail(self,request,**kwargs):
+        return self.get(request)
+        
+class ArticleView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+
+    model = models.Article
+    template_name = 'dictionary/article_detail.html'
+    slug_url_kwarg = 'slug_article'
+    
+    def get_object(self):
+        return get_object_or_404(models.Article,slug=self.kwargs['slug_article'])
+        
+class DeleteArticleView(DeleteView):
+    model = models.Article
+    slug_url_kwarg = 'slug_article'
+    template_name = 'dictionary/confirm_delete.html'
+    
+    def get_object(self):
+        return get_object_or_404(models.Article,slug=self.kwargs['slug_article'])
+        
+    def get_success_url(self):
+        return reverse('list_article')
+        
+
+# Discussions
+
+class DiscussionsListView(LoginRequiredMixin,ListView):
+
+    model = models.Discussion
+    paginate_by = 10  # if pagination is desired
+    template_name = "dictionary/discussions_list.html"
+    
+    def get_queryset(self):
+        return models.Discussion.objects.filter(user=self.request.user)
+        
+class CreateUpdateDiscussionView(LoginRequiredMixin,AutoCompletionView):
+
+    def __init__(self):
+        model = models.Discussion
+        model_form = forms.DiscussionForm
+        main_slug_name = "slug_discussion"
+        slugs_list = []
+        template_path = 'dictionary/discussionform.html'
+        nested_fields = []
+        nested_fields.append(AutoCompletionNestedField(model_name="Topic",model_form_name="TopicForm",field_autocomplete_name="name",prefix="topic",title="Topic",user_based=False))
+        AutoCompletionView.__init__(self,model=model,model_form=model_form,main_slug_name=main_slug_name,slugs_list=slugs_list,template_path=template_path,nested_fields=nested_fields)        
+
+    def set_slug_user(self, request):
+        self.item.user = request.user
+        self.item.slug = slugify(self.item.title + "-" + self.item.topic.name + "-" + random_str(15))
+        
+    def clean_useless_records(self):
+        pass
+        
+    def redirect_success(self,request,**kwargs):
+        return HttpResponseRedirect(reverse('list_discussion'))
+        
+    def redirect_fail(self,request,**kwargs):
+        return self.get(request)
+        
+class DiscussionView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+
+    model = models.Discussion
+    template_name = 'dictionary/discussion_detail.html'
+    slug_url_kwarg = 'slug_discussion'
+    
+    def get_object(self):
+        return get_object_or_404(models.Discussion,slug=self.kwargs['slug_discussion'])
+        
+class DeleteDiscussionView(DeleteView):
+    model = models.Discussion
+    slug_url_kwarg = 'slug_discussion'
+    template_name = 'dictionary/confirm_delete.html'
+    
+    def get_object(self):
+        return get_object_or_404(models.Discussion,slug=self.kwargs['slug_discussion'])
+        
+    def get_success_url(self):
+        return reverse('list_discussion')

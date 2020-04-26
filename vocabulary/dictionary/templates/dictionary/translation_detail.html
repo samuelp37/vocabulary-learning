@@ -118,6 +118,8 @@ $(document).ready(function(){
 				<div class="text-right col-md-6">
 					{% if slug_book %}
 					<a href="{% url 'update_translation_book' slug_book=slug_book slug=translation.slug %}">
+					{% elif slug_article %}
+					<a href="{% url 'update_translation_article' slug_article=slug_article slug=translation.slug %}">
 					{% else %}
 					<a href="{% url 'update_translation' slug=translation.slug %}">
 					{% endif %}
