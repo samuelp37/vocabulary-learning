@@ -101,14 +101,14 @@ class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
         nested_fields.append(AutoCompletionNestedField(model_name="Adjective",model_form_name="AdjectiveForm",field_autocomplete_name="word",prefix="translated_adj",title="Translated adjective",user_based=False))
         nested_fields.append(AutoCompletionNestedField(model_name="Verb",model_form_name="VerbForm",field_autocomplete_name="word",prefix="original_verb",title="Original verb",user_based=False))
         nested_fields.append(AutoCompletionNestedField(model_name="Verb",model_form_name="VerbForm",field_autocomplete_name="word",prefix="translated_verb",title="Translated verb",user_based=False))
-        nested_fields.append(AutoCompletionNestedField(model_name="Expression",model_form_name="ExpressionForm",field_autocomplete_name="expression",prefix="original_exp",title="Original expression",user_based=False))
-        nested_fields.append(AutoCompletionNestedField(model_name="Expression",model_form_name="ExpressionForm",field_autocomplete_name="expression",prefix="translated_exp",title="Translated expression",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Expression",model_form_name="ExpressionForm",field_autocomplete_name=None,prefix="original_exp",title="Original expression",user_based=False))
+        nested_fields.append(AutoCompletionNestedField(model_name="Expression",model_form_name="ExpressionForm",field_autocomplete_name=None,prefix="translated_exp",title="Translated expression",user_based=False))
         
         AutoCompletionView.__init__(self,model=model,model_form=model_form,main_slug_name=main_slug_name,slugs_list=slugs_list,template_path=template_path,nested_fields=nested_fields)        
 
     def set_slug_user(self, request):
         self.item.user = request.user
-        self.item.slug = slugify("-".join([field.item.__str__() for field in self.nested_fields]) + "-" +   random_str(15))
+        self.item.slug = slugify("-".join([field.item.__str__()[:30] for field in self.nested_fields]) + "-" +   random_str(15))
         
     def custom_nested_fields_handler(self,request):
         """
@@ -209,7 +209,7 @@ class TranslationView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
     def get_context_data(self, **kwargs):
         context = super(TranslationView, self).get_context_data(**kwargs)
         
-        model_chosen = get_model_chosen(self.model.get_model_access_list(),kwargs)
+        model_chosen = get_model_chosen(self.model.get_model_access_list(),self.kwargs)
         if model_chosen is None:
             return context
         

@@ -20,6 +20,7 @@ class Language(models.Model):
     
     def __str__(self):
         return self.name
+        
     
     class Meta:
         verbose_name = "Language"
@@ -151,6 +152,21 @@ class Gender(models.Model):
     def __str__(self):
         return self.gender
         
+    def get_article(self, language):
+        if language=="German":
+            if self.gender=="Masculine":
+                return "der "
+            elif self.gender=="Feminine":
+                return "die "
+            elif self.gender=="Neutral":
+                return "das "
+        elif language=="French":
+            if self.gender=="Masculine":
+                return "un "
+            elif self.gender=="Feminine":
+                return "une "
+        return ""
+      
     class Meta:
         verbose_name = "Gender"
         verbose_name_plural = "Genders"
@@ -163,7 +179,7 @@ class Word(models.Model):
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
     def __str__(self):
-        return self.word + " ("+self.language.name+")"
+        return self.gender.get_article(self.language.name) + self.word + " ("+self.language.name+")"
      
     class Meta:
         verbose_name = "Word"
@@ -200,7 +216,7 @@ class Expression(models.Model):
     language = models.ForeignKey('Language',on_delete=models.CASCADE,default='')
     
     def __str__(self):
-        return self.expression[:30] + " ("+self.language.name+")"
+        return self.expression + " ("+self.language.name+")"
      
     class Meta:
         verbose_name = "Expression"
@@ -232,24 +248,24 @@ class Translation(models.Model):
     @property
     def original_str(self):
         if self.original_word:
-            return self.original_word.word
+            return self.original_word
         elif self.original_adj:
-            return self.original_adj.word
+            return self.original_adj
         elif self.original_verb:
-            return self.original_verb.word
+            return self.original_verb
         elif self.original_exp:
-            return self.original_exp.expression
+            return self.original_exp
             
     @property
     def translated_str(self):
         if self.translated_word:
-            return self.translated_word.word
+            return self.translated_word
         elif self.translated_adj:
-            return self.translated_adj.word
+            return self.translated_adj
         elif self.translated_verb:
-            return self.translated_verb.word
+            return self.translated_verb
         elif self.translated_exp:
-            return self.translated_exp.expression
+            return self.translated_exp
             
     @staticmethod
     def get_model_access_list():

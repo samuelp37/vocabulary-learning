@@ -25,6 +25,14 @@ p.head{
 	color: #00ADFF!important;
 }
 
+.blurred{
+	filter: blur(10px);
+}
+
+.blurred:hover{
+	filter: none;
+}
+
 img{
 	width:100%;
 }

@@ -6,128 +6,29 @@ Translation
 
 {% block libraries %}
 {% load crispy_forms_tags %}
+
 {% load static %}
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="{% static 'dictionary/dictionary/vendor/bootstrap/js/bootstrap.min.js' %}">
-
-<script>
-$(document).ready(function(){
-    $("#tab_choice a").click(function(e){
-        e.preventDefault();
-        $(this).tab('show');
-    });
-});
-
-</script>
+<script src="{% static 'dictionary/dictionary/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
 
 {% endblock %}
 
 {% block body %}
 	<br><br>
-	<div class="main_info col-md-8 offset-2">
-		<div class="card text-center">
-		  <div class="card-header">
-			<ul class="nav nav-pills" id="tab_choice">
-				<li class="nav-item">
-					<a href="#translation" class="nav-link active" data-toggle="tab">Translation</a>
-				</li>
-				<li class="nav-item">
-					{% if translation.original_word %}
-					<a href="#name" class="nav-link" data-toggle="tab">Name</a>
-					{% else %}
-					<a href="#name" class="nav-link disabled" data-toggle="tab">Name</a>
-					{% endif %}
-				</li>
-				<li class="nav-item">
-					{% if translation.original_adj %}
-					<a href="#adjective" class="nav-link" data-toggle="tab">Adjective</a>
-					{% else %}
-					<a href="#adjective" class="nav-link disabled" data-toggle="tab">Adjective</a>
-					{% endif %}
-				</li>
-				<li class="nav-item">
-					{% if translation.original_verb %}
-					<a href="#verb" class="nav-link" data-toggle="tab">Verb</a>
-					{% else %}
-					<a href="#verb" class="nav-link disabled" data-toggle="tab">Verb</a>
-					{% endif %}
-				</li>
-				<li class="nav-item">
-					{% if translation.original_exp %}
-					<a href="#expression" class="nav-link" data-toggle="tab">Expression</a>
-					{% else %}
-					<a href="#expression" class="nav-link disabled" data-toggle="tab">Expression</a>
-					{% endif %}
-				</li>
-			</ul>
-		  </div>
-		  <div class="card-body">
-			<div class="tab-content">
-				<div id="translation" class="tab-pane fade show active">
-					<h2 class="primary">
-					{{ translation.original_str }}
-					</h2>
-					<h2 class="secondary">
-					{{ translation.translated_str }}
-					</h2>
-				</div>
-				
-				<div class="tab-pane fade" id="name">
-					<h2 class="primary">
-					{{ translation.original_word }}
-					</h2>
-					<h2 class="secondary">
-					{{ translation.translated_word }}
-					</h2>
-				</div>
-				
-				<div class="tab-pane fade" id="adjective">
-					<h2 class="primary">
-					{{ translation.original_adj }}
-					</h2>
-					<h2 class="secondary">
-					{{ translation.translated_adj }}
-					</h2>
-				</div>
-				
-				<div class="tab-pane fade" id="verb">
-					<h2 class="primary">
-					{{ translation.original_verb }}
-					</h2>
-					<h2 class="secondary">
-					{{ translation.translated_verb }}
-					</h2>
-				</div>
-				
-				<div class="tab-pane fade" id="expression">
-					<h2 class="primary">
-					{{ translation.original_exp }}
-					</h2>
-					<h2 class="secondary">
-					{{ translation.translated_exp }}
-					</h2>
-				</div>
-			</div>
-		  </div>
-		  <div class="card-footer">
-			<div class="row">
-				<div class="col-md-6 text-left">
-				Added the {{ translation.date_added|date:'d/m/Y'  }}
-				</div>
-				<div class="text-right col-md-6">
-					{% if slug_book %}
-					<a href="{% url 'update_translation_book' slug_book=slug_book slug=translation.slug %}">
-					{% elif slug_article %}
-					<a href="{% url 'update_translation_article' slug_article=slug_article slug=translation.slug %}">
-					{% else %}
-					<a href="{% url 'update_translation' slug=translation.slug %}">
-					{% endif %}
-						<button type="submit" class="btn btn-success">Update the translation</button>
-					</a>
-				</div>
-			</div>
-		  </div>
+	<div class="row">
+		<div class="col-md-1 offset-1">
+		
 		</div>
-	</div>
+		{% if slug_book %}
+		{% include "dictionary/translation_card.html" with translation=translation slug_book=slug_book %} 
+		{% elif slug_article %}
+		{% include "dictionary/translation_card.html" with translation=translation slug_article=slug_article %} 
+		{% else %}
+		{% include "dictionary/translation_card.html" with translation=translation %}  
+		{% endif %}
+		<div class="col-md-1">
+		
+		</div>
+	<div>
 {% endblock %}

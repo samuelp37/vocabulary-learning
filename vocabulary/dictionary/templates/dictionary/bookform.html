@@ -6,14 +6,13 @@ Adding a translation
 
 {% block libraries %}
 {% load crispy_forms_tags %}
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
 {% load static %}
 <script type="text/javascript">
 	var target_words = "{{ target_input_words }}";
 </script>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="{% static 'dictionary/dictionary/js/fields_not_required.js' %}"></script>
 <script src="{% static 'dictionary/dictionary/js/autocomplete_form.js' %}"></script>
 
 {% endblock %}

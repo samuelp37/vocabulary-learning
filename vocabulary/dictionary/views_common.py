@@ -99,7 +99,8 @@ class AutoCompletionView(View):
         #creating nested autocomplete forms
         for field in self.nested_fields:
             form, target_input_id = field.autocomplete_form(request,pre_instance)
-            target_input_words.append(target_input_id)
+            if target_input_id is not None:
+                target_input_words.append(target_input_id)
             variables_dict["form_"+field.prefix] = form
         
         target_input_words = ",".join(target_input_words)
@@ -196,7 +197,10 @@ class AutoCompletionNestedField():
             else:
                 form = self.model_form(prefix=self.prefix, instance=getattr(pre_instance,self.prefix))
         
-        target_input_id = "#id_"+form.prefix+"-"+self.field_autocomplete_name
+        if self.field_autocomplete_name is None:
+            target_input_id = None
+        else:
+            target_input_id = "#id_"+form.prefix+"-"+self.field_autocomplete_name
         form.title = self.title
         form.list_fields = get_all_fields_from_form(self.model_form)
                 
