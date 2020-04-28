@@ -29,10 +29,6 @@ p.head{
 	filter: blur(10px);
 }
 
-.blurred:hover{
-	filter: none;
-}
-
 img{
 	width:100%;
 }

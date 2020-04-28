@@ -1,5 +1,5 @@
-from dictionary.models import Translation, Word, Book, Author, Adjective, Verb, Expression, Newspaper, Article, Topic, Discussion
-from django.forms import ModelForm, Textarea, DateInput
+from dictionary.models import Translation, Word, Book, Author, Adjective, Verb, Expression, Newspaper, Article, Topic, Discussion, Quizz
+from django.forms import ModelForm, Textarea, DateInput, IntegerField, BooleanField, ChoiceField
 from django.contrib.admin import widgets 
 
 class TranslationForm(ModelForm):
@@ -83,3 +83,25 @@ class TopicForm(ModelForm):
     
         model = Topic
         fields = '__all__'
+
+ORDERING_POLICY = (
+    ('random', 'Random'),
+    ('LRU', 'Least Recently used'),
+)
+       
+class QuizzForm(ModelForm):
+
+    number_questions = IntegerField(label="Number of questions",initial=10,min_value=1)
+    original_to_translated = BooleanField(label="Original word to translation",initial=True,required=False)
+    ordering_policy = ChoiceField(label="Priority of words for the quizz",choices = ORDERING_POLICY,initial="Random")
+    
+    class Meta:
+    
+        model = Quizz
+        exclude = ['slug','user','items','date_quizz']
+    
+    """
+    def save(self, commit=True):
+        # do something with self.cleaned_data['temp_id']
+        return super(PointForm, self).save(commit=commit)
+    """

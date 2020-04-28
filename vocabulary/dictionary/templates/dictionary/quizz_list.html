@@ -1,0 +1,36 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Lectures list
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% endblock %}
+
+{% block body %}
+	<h1>Quizz</h1>
+	<br>
+	<a href="{% url 'add_review' %}">
+		<button type="submit" class="btn btn-success">Take a new quizz</button>
+	</a>
+	<br><br>
+	{% for quizz in object_list %}
+		<li class="list-group-item d-flex justify-content-between align-items-center">
+			<a href="{% url 'details_review' slug_review=quizz.slug %}">
+			{{ quizz }}
+			</a>
+			<div class="pull-right">
+				<a href="{% url 'delete_review' slug_review=quizz.slug %}">
+					<button class="btn btn-danger">
+						<i class="fa fa-times" aria-hidden="true"></i>
+					</button>
+				</a>
+			</div>
+		</li>
+	{% empty %}
+		<div class="alert alert-info" role="alert">
+		No quizz yet.
+		</div>
+	{% endfor %}
+{% endblock %}

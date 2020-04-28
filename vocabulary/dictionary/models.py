@@ -2,6 +2,76 @@ from django.db import models
 import datetime
 from django.contrib.auth.models import User
 
+class QuizzLinkItem(models.Model):
+
+    quizz = models.ForeignKey('Quizz',on_delete=models.CASCADE,default='')
+    quizz_item = models.ForeignKey('QuizzItem',on_delete=models.CASCADE,default='')
+	
+    def __str__(self):
+        return self.quizz.__str__()+"-"+self.quizz_item.__str__()
+		
+    class Meta:
+        verbose_name = "Quizz - Item"
+        verbose_name_plural = "Quizz - Items"
+    
+class QuizzItem(models.Model):
+
+    translation = models.ForeignKey('Translation',on_delete=models.CASCADE,default='')
+    original_to_translate = models.BooleanField(default=False)
+    delivered_on = models.DateTimeField("Date of delivery",default=datetime.datetime.now(),null=True,blank=True)
+    delta_reply = models.FloatField("Duration reply (s)",default=-1,null=True,blank=True)
+    slug = models.SlugField("Slug",max_length=100,default='')
+    success = models.BooleanField(default=False,null=True,blank=True)
+    
+    def __str__(self):
+        return "Quizz : " + self.translation.__str__()
+        
+    @property
+    def get_duration_s(self):
+        if self.success:
+            return "("+str(round(self.delta_reply,2))+"s)"
+        else:
+            return ""
+        
+    @property
+    def get_class_itemlist(self):
+        if self.success is None:
+            return ""
+        elif self.success:
+            return "list-group-item-success"
+        else:
+            return "list-group-item-danger"
+        
+    class Meta:
+        verbose_name = "Quizz item"
+        verbose_name_plural = "Quizz items"
+
+class Quizz(models.Model):
+    
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+    items = models.ManyToManyField('QuizzItem', through='QuizzLinkItem')
+    date_quizz = models.DateField("Date of the quizz",default=datetime.date.today)
+    slug = models.SlugField("Slug",max_length=100,default='')
+    
+    def __str__(self):
+        return "Quizz ("+self.date_quizz.strftime("%d/%m/%Y")+")"
+        
+    @property
+    def get_date(self):
+        return self.date_quizz.strftime("%d/%m/%Y")
+        
+    @property
+    def disabled_resume(self):
+        count = self.items.all().filter(success=None).count()
+        if count > 0:
+            return ""
+        else:
+            return "disabled"
+		
+    class Meta:
+        verbose_name = "Quizz"
+        verbose_name_plural = "Quizz"
+
 class Author(models.Model):
 
     first_name = models.CharField("First name",max_length=100,default='',null=True,blank=True)
@@ -272,7 +342,25 @@ class Translation(models.Model):
         return [Book,Article,Discussion]
     
     def __str__(self):
-        return self.original_str + "-" + self.translated_str
+        return self.original_str.__str__() + "-" + self.translated_str.__str__()
+    
+    @property    
+    def short_str(self):
+        return self.__str__()[:30]
+        
+    @property
+    def count_questions_quizz(self):
+        count = QuizzItem.objects.all().filter(translation=self).exclude(success=None).count()
+        return count
+        
+    @property
+    def count_success_questions_quizz(self):
+        count = QuizzItem.objects.all().filter(translation=self,success=True).count()
+        return count
+        
+    @property
+    def get_ratio_success(self):
+        return str(self.count_success_questions_quizz)+"/"+str(self.count_questions_quizz)
         
     class Meta:
         verbose_name = "Translation"

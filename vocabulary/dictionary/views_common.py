@@ -10,6 +10,25 @@ from .models import Word, Author, Adjective, Verb, Expression, Newspaper, Topic
 from .forms import WordForm, AuthorForm, AdjectiveForm, VerbForm, ExpressionForm, NewspaperForm, TopicForm
 import random, string
 
+# Access Security layers
+
+class AuthorizeAccessDetailView(View):
+
+    def get(self, request, **kwargs):
+        obj = super().get_object()
+        if obj.user != request.user:
+            return HttpResponseForbidden('Unauthorized access')
+        return super().get(self, request, **kwargs)
+"""     
+class AuthorizeAccessView(View):
+
+    def get(self, request, slug):
+        obj = get_object_auth()
+        if obj is not None and obj.user != request.user: # We check also whether this is an update
+            return HttpResponseForbidden('Unauthorized access')
+        
+        return super().get(self, request, slug)
+"""
 
 # Utilities
 

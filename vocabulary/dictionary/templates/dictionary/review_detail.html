@@ -1,0 +1,33 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Lectures list
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% endblock %}
+
+{% block body %}
+	<h1>{{ object }}</h1>
+	<br>
+	<h2>Main information :</h2>
+	<a href="{% url 'resume_review' slug_review=object.slug %}">
+		<button class="btn btn-primary" {{ object.disabled_resume }}>
+			Continue the quizz
+		</button>
+	</a>
+	<a href="{% url 'delete_review' slug_review=object.slug %}">
+		<button class="btn btn-danger">
+			Delete the quizz
+		</button>
+	</a>
+	<br><br>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Date : {{ object.get_date }}
+	</li>
+	<br><br>
+	<h2>Translations :</h2>
+	<br><br>
+	{% include "dictionary/list_quizz_items_abstract.html" with items=object.items %}
+{% endblock %}

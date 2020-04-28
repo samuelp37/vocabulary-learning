@@ -17,6 +17,7 @@ import sys
 from django.db.models import Q
 
 from .views_common import *
+import datetime
 
 class HomeNoMemberView(TemplateView):
 
@@ -55,7 +56,6 @@ class TopicAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
 
     def __init__(self):
         AutoCompletionNestedField.__init__(self,model_name="Topic",model_form_name="TopicForm",field_autocomplete_name="name",prefix=None,title=None,user_based=False)
-
 
 class CreateUpdateBookView(LoginRequiredMixin,AutoCompletionView):
 
@@ -177,15 +177,6 @@ class TranslationListView(LoginRequiredMixin,ListView):
      
     def get_queryset(self):
         return models.Translation.objects.filter(user=self.request.user)
-
-class AuthorizeAccessDetailView(View):
-
-    def get(self, request, slug):
-        obj = super().get_object()
-        if obj.user != request.user:
-            return HttpResponseForbidden('Unauthorized access')
-        
-        return super().get(self, request, slug)
     
 class BookView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
 
@@ -359,3 +350,143 @@ class DeleteDiscussionView(DeleteView):
         
     def get_success_url(self):
         return reverse('list_discussion')
+        
+# Quizz
+
+class CreateReviewView(LoginRequiredMixin,View):
+
+    def __init__(self):
+        self.model = models.Quizz
+        self.model_form = forms.QuizzForm
+        self.template_path = 'dictionary/quizzform.html'
+
+    def get(self, request):
+        return render(request, self.template_path, {'form':self.model_form()})
+
+    def post(self, request):
+    
+        form = self.model_form(request.POST)
+        
+        number_questions = int(request.POST['number_questions'])
+        if 'original_to_translated' in request.POST:
+            original_to_translated = True
+        else:
+            original_to_translated = False
+        user = request.user
+        date_quizz = datetime.date.today()
+        slug = slugify("Quizz-" + date_quizz.strftime("%d/%m/%Y") + "-" + random_str(15))
+        ordering_policy = request.POST['ordering_policy']
+        
+        quizz_instance = models.Quizz(slug=slug, date_quizz=date_quizz,user=user)
+        quizz_instance.save()
+        
+        if ordering_policy=="random":
+            translations_list = models.Translation.objects.all().order_by('?')[:number_questions]
+        else:
+            raise Exception("Not implemented yet")
+        
+        for translation in translations_list:
+            slug = "quizz_item_"+random_str(40)
+            quizz_item = models.QuizzItem(translation = translation,original_to_translate = original_to_translated,delivered_on=None,delta_reply=None,slug=slug,success=None)
+            quizz_item.save()
+            quizz_link = models.QuizzLinkItem(quizz=quizz_instance,quizz_item=quizz_item)
+            quizz_link.save()
+        
+        return HttpResponseRedirect(reverse('quizz_review_item', kwargs={'slug_item':quizz_item.slug,'slug_review':quizz_instance.slug}))
+        
+class QuizzReviewItemView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+
+    model = models.QuizzItem
+    template_name = 'dictionary/quizzitem_detail.html'
+    slug_url_kwarg = 'slug_item'
+    
+    def get_object(self):
+        quizz_item = get_object_or_404(models.QuizzItem,slug=self.kwargs['slug_item'])
+        quizz_item.delivered_on = datetime.datetime.now(datetime.timezone.utc)
+        quizz_item.save()
+        return quizz_item
+        
+    def get_context_data(self, **kwargs):
+        context = super(QuizzReviewItemView, self).get_context_data(**kwargs)
+        context['slug_review'] = self.kwargs['slug_review']
+        
+        if context['object'].original_to_translate:
+            context['object'].original_blurred = ""
+            context['object'].translate_blurred = "blurred"
+        else:
+            context['object'].original_blurred = "blurred"
+            context['object'].translate_blurred = ""
+        
+        return context
+        
+class QuizzAnalysisReviewItemView(LoginRequiredMixin,View):
+
+    def get(self, request, **kwargs):
+        
+        slug_quizz = self.kwargs['slug_review']
+        slug_item = self.kwargs['slug_item']
+        success = (int(self.kwargs['success']) != 0)
+        
+        quizz_item = get_object_or_404(models.QuizzItem,slug=slug_item)
+        quizz = get_object_or_404(models.Quizz,slug=slug_quizz)
+        
+        current_datetime = datetime.datetime.now(datetime.timezone.utc)
+        delta_datetime = current_datetime-quizz_item.delivered_on
+        delta_reply_seconds = delta_datetime.total_seconds()
+        
+        quizz_item.success = success
+        quizz_item.delta_reply = delta_reply_seconds
+        quizz_item.save()
+        
+        next_quizz_item = quizz.items.all().filter(success=None).first()
+        print(next_quizz_item)
+        
+        if next_quizz_item is not None:
+            return HttpResponseRedirect(reverse('quizz_review_item', kwargs={'slug_item':next_quizz_item.slug,'slug_review':quizz.slug}))
+        
+        return HttpResponseRedirect(reverse('details_review', kwargs={'slug_review':quizz.slug}))
+        
+class ResumeReviewView(LoginRequiredMixin,View):
+
+    def get(self, request, **kwargs):
+        
+        slug_quizz = self.kwargs['slug_review']
+        
+        quizz = get_object_or_404(models.Quizz,slug=slug_quizz)
+        
+        next_quizz_item = quizz.items.all().filter(success=None).first()
+        print(next_quizz_item)
+        
+        if next_quizz_item is not None:
+            return HttpResponseRedirect(reverse('quizz_review_item', kwargs={'slug_item':next_quizz_item.slug,'slug_review':quizz.slug}))
+        
+        return HttpResponseRedirect(reverse('details_review', kwargs={'slug_review':quizz.slug}))
+
+class ReviewsListView(LoginRequiredMixin,ListView):
+
+    model = models.Quizz
+    paginate_by = 10  # if pagination is desired
+    template_name = "dictionary/quizz_list.html"
+    
+    def get_queryset(self):
+        return models.Quizz.objects.filter(user=self.request.user)
+        
+class ReviewView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+
+    model = models.Quizz
+    template_name = 'dictionary/review_detail.html'
+    slug_url_kwarg = 'slug_review'
+    
+    def get_object(self):
+        return get_object_or_404(models.Quizz,slug=self.kwargs['slug_review'])
+        
+class DeleteReviewView(DeleteView):
+    model = models.Quizz
+    slug_url_kwarg = 'slug_review'
+    template_name = 'dictionary/confirm_delete.html'
+    
+    def get_object(self):
+        return get_object_or_404(models.Quizz,slug=self.kwargs['slug_review'])
+        
+    def get_success_url(self):
+        return reverse('list_reviews')

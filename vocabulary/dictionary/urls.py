@@ -44,6 +44,16 @@ urlpatterns = [
     path('member/discussions/details/<str:slug_discussion>/vocabulary/view/<str:slug>', views.TranslationView.as_view(), name='view_translation_discussion'),
     path('member/discussions/details/<str:slug_discussion>/vocabulary/delete/<str:slug>', views.DeleteTranslationView.as_view(), name='delete_translation_discussion'),
     
+    path('member/review/add', views.CreateReviewView.as_view(), name='add_review'),
+    path('member/review/list', views.ReviewsListView.as_view(), name='list_reviews'),
+    
+    path('member/review/delete/<str:slug_review>', views.DeleteReviewView.as_view(), name='delete_review'),
+    path('member/review/details/<str:slug_review>', views.ReviewView.as_view(), name='details_review'),
+    path('member/review/resume/<str:slug_review>', views.ResumeReviewView.as_view(), name='resume_review'),
+    
+    path('member/review/details/<str:slug_review>/review_item/<str:slug_item>', views.QuizzReviewItemView.as_view(), name='quizz_review_item'),
+    path('member/review/details/<str:slug_review>/analysis_review_item/<str:slug_item>/<int:success>', views.QuizzAnalysisReviewItemView.as_view(), name='quizz_analysis_review_item'),
+    
     path('ajax/autocomplete/word', views.WordAutocompleteView.as_view(), name='autocomplete_word'),
     path('ajax/autocomplete/adjective', views.AdjectiveAutocompleteView.as_view(), name='autocomplete_adj'),
     path('ajax/autocomplete/verb', views.VerbAutocompleteView.as_view(), name='autocomplete_verb'),

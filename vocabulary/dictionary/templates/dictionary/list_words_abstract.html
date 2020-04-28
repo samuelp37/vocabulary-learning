@@ -4,6 +4,7 @@
 		  <th scope="col">Original word</th>
 		  <th scope="col">Translated word</th>
 		  <th scope="col">Added on</th>
+		  <th scope="col">Success</th>
 		  <th scope="col"></th>
 		  <th scope="col"></th>
 		  <th scope="col"></th>
@@ -15,6 +16,7 @@
 				  <td class="align-middle">{{ translation.original_str }}</td>
 				  <td class="align-middle">{{ translation.translated_str }}</td>
 				  <td class="align-middle">{{ translation.date_added|date:'d/m/Y' }}</td>
+				  <td class="align-middle">{{ translation.get_ratio_success }}</td>
 				  <td>
 				    {% if slug_book %}
 					<a href="{% url 'view_translation_book' slug_book=slug_book slug=translation.slug %}">
