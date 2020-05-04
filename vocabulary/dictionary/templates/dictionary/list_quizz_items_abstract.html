@@ -1,6 +1,6 @@
 	{% for questions in items.all %}
 		<li class="list-group-item {{ questions.get_class_itemlist }} d-flex justify-content-between align-items-center">
-			<a href="">
+			<a href="{% url 'details_translation' slug=questions.translation.slug %}">
 			{{ questions.translation.short_str }} {{ questions.get_duration_s }}
 			</a>
 			<div class="pull-right">

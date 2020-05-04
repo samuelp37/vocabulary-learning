@@ -67,6 +67,24 @@ class Quizz(models.Model):
             return ""
         else:
             return "disabled"
+            
+    @property
+    def count_questions_quizz(self):
+        count = self.items.all().exclude(success=None).count()
+        return count
+        
+    @property
+    def count_success_questions_quizz(self):
+        count = self.items.all().filter(success=True).count()
+        return count
+        
+    @property
+    def get_ratio_success(self):
+        return str(self.count_success_questions_quizz)+"/"+str(self.count_questions_quizz)
+    
+    @property
+    def get_ratio_success_asint_percentage(self):
+        return int(100*self.count_success_questions_quizz/self.count_questions_quizz)
 		
     class Meta:
         verbose_name = "Quizz"

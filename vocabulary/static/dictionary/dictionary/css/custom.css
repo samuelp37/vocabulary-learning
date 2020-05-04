@@ -29,6 +29,14 @@ p.head{
 	filter: blur(10px);
 }
 
+.blurred_nohover{
+	filter: blur(10px);
+}
+
+.blurred_nohover:hover{
+	filter:none;
+}
+
 img{
 	width:100%;
 }

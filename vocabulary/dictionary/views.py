@@ -178,24 +178,18 @@ class TranslationListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         return models.Translation.objects.filter(user=self.request.user)
     
-class BookView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+class BookView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailView):
 
     model = models.Book
     template_name = 'dictionary/book_detail.html'
     slug_url_kwarg = 'slug_book'
-    
-    def get_object(self):
-        return get_object_or_404(models.Book,slug=self.kwargs['slug_book'])
         
-class TranslationView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+class TranslationView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailView):
 
     model = models.Translation
     template_name = 'dictionary/translation_detail.html'
     slug_url_kwarg = 'slug'
     context_object_name = 'translation'
-    
-    def get_object(self):
-        return get_object_or_404(models.Translation,slug=self.kwargs['slug'])
         
     def get_context_data(self, **kwargs):
         context = super(TranslationView, self).get_context_data(**kwargs)
@@ -207,13 +201,10 @@ class TranslationView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
         context[model_chosen.extern_slug()] = model_chosen.extern_slug()
         return context
         
-class DeleteTranslationView(DeleteView):
+class DeleteTranslationView(AuthorizeAccessDetailView,DeleteView):
     model = models.Translation
     slug_url_kwarg = 'slug'
     template_name = 'dictionary/confirm_delete.html'
-    
-    def get_object(self):
-        return get_object_or_404(models.Translation,slug=self.kwargs['slug'])
         
     def get_success_url(self):
     
@@ -224,13 +215,10 @@ class DeleteTranslationView(DeleteView):
             dict = model_chosen.translation_utils()
             return reverse('details_'+dict["model_link_attr"], kwargs={model_chosen.extern_slug():self.kwargs[model_chosen.extern_slug()]})
             
-class DeleteBookView(DeleteView):
+class DeleteBookView(AuthorizeAccessDetailView,DeleteView):
     model = models.Book
     slug_url_kwarg = 'slug_book'
     template_name = 'dictionary/confirm_delete.html'
-    
-    def get_object(self):
-        return get_object_or_404(models.Book,slug=self.kwargs['slug_book'])
         
     def get_success_url(self):
         return reverse('list_book')
@@ -274,22 +262,16 @@ class CreateUpdateArticleView(LoginRequiredMixin,AutoCompletionView):
     def redirect_fail(self,request,**kwargs):
         return self.get(request)
         
-class ArticleView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+class ArticleView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailView):
 
     model = models.Article
     template_name = 'dictionary/article_detail.html'
     slug_url_kwarg = 'slug_article'
-    
-    def get_object(self):
-        return get_object_or_404(models.Article,slug=self.kwargs['slug_article'])
         
-class DeleteArticleView(DeleteView):
+class DeleteArticleView(AuthorizeAccessDetailView,DeleteView):
     model = models.Article
     slug_url_kwarg = 'slug_article'
     template_name = 'dictionary/confirm_delete.html'
-    
-    def get_object(self):
-        return get_object_or_404(models.Article,slug=self.kwargs['slug_article'])
         
     def get_success_url(self):
         return reverse('list_article')
@@ -331,22 +313,16 @@ class CreateUpdateDiscussionView(LoginRequiredMixin,AutoCompletionView):
     def redirect_fail(self,request,**kwargs):
         return self.get(request)
         
-class DiscussionView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+class DiscussionView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailView):
 
     model = models.Discussion
     template_name = 'dictionary/discussion_detail.html'
     slug_url_kwarg = 'slug_discussion'
-    
-    def get_object(self):
-        return get_object_or_404(models.Discussion,slug=self.kwargs['slug_discussion'])
         
-class DeleteDiscussionView(DeleteView):
+class DeleteDiscussionView(LoginRequiredMixin,AuthorizeAccessDetailView,DeleteView):
     model = models.Discussion
     slug_url_kwarg = 'slug_discussion'
     template_name = 'dictionary/confirm_delete.html'
-    
-    def get_object(self):
-        return get_object_or_404(models.Discussion,slug=self.kwargs['slug_discussion'])
         
     def get_success_url(self):
         return reverse('list_discussion')
@@ -394,14 +370,14 @@ class CreateReviewView(LoginRequiredMixin,View):
         
         return HttpResponseRedirect(reverse('quizz_review_item', kwargs={'slug_item':quizz_item.slug,'slug_review':quizz_instance.slug}))
         
-class QuizzReviewItemView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+class QuizzReviewItemView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailView):
 
     model = models.QuizzItem
     template_name = 'dictionary/quizzitem_detail.html'
     slug_url_kwarg = 'slug_item'
     
     def get_object(self):
-        quizz_item = get_object_or_404(models.QuizzItem,slug=self.kwargs['slug_item'])
+        quizz_item = super().get_object()
         quizz_item.delivered_on = datetime.datetime.now(datetime.timezone.utc)
         quizz_item.save()
         return quizz_item
@@ -419,8 +395,11 @@ class QuizzReviewItemView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailVie
         
         return context
         
-class QuizzAnalysisReviewItemView(LoginRequiredMixin,View):
-
+class QuizzAnalysisReviewItemView(LoginRequiredMixin,AuthorizeAccessDetailView,View):
+    
+    model = models.Quizz
+    slug_url_kwarg = 'slug_review'
+    
     def get(self, request, **kwargs):
         
         slug_quizz = self.kwargs['slug_review']
@@ -446,13 +425,15 @@ class QuizzAnalysisReviewItemView(LoginRequiredMixin,View):
         
         return HttpResponseRedirect(reverse('details_review', kwargs={'slug_review':quizz.slug}))
         
-class ResumeReviewView(LoginRequiredMixin,View):
-
+class ResumeReviewView(LoginRequiredMixin,AuthorizeAccessDetailView,View):
+    
+    model = models.Quizz
+    slug_url_kwarg = 'slug_review'
+    
     def get(self, request, **kwargs):
         
-        slug_quizz = self.kwargs['slug_review']
-        
-        quizz = get_object_or_404(models.Quizz,slug=slug_quizz)
+        slug_quizz = self.kwargs[self.slug_url_kwarg]
+        quizz = get_object_or_404(self.model,slug=slug_quizz)
         
         next_quizz_item = quizz.items.all().filter(success=None).first()
         print(next_quizz_item)
@@ -467,26 +448,21 @@ class ReviewsListView(LoginRequiredMixin,ListView):
     model = models.Quizz
     paginate_by = 10  # if pagination is desired
     template_name = "dictionary/quizz_list.html"
+    ordering = ['-date_quizz','-id']
     
     def get_queryset(self):
-        return models.Quizz.objects.filter(user=self.request.user)
+        return models.Quizz.objects.filter(user=self.request.user).order_by(self.ordering[0],self.ordering[1])
         
-class ReviewView(LoginRequiredMixin,DetailView,AuthorizeAccessDetailView):
+class ReviewView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailView):
 
     model = models.Quizz
     template_name = 'dictionary/review_detail.html'
     slug_url_kwarg = 'slug_review'
-    
-    def get_object(self):
-        return get_object_or_404(models.Quizz,slug=self.kwargs['slug_review'])
         
-class DeleteReviewView(DeleteView):
+class DeleteReviewView(AuthorizeAccessDetailView,DeleteView):
     model = models.Quizz
     slug_url_kwarg = 'slug_review'
     template_name = 'dictionary/confirm_delete.html'
-    
-    def get_object(self):
-        return get_object_or_404(models.Quizz,slug=self.kwargs['slug_review'])
         
     def get_success_url(self):
         return reverse('list_reviews')

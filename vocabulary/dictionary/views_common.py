@@ -2,6 +2,7 @@ import sys
 from django.shortcuts import render, get_object_or_404
 from django.utils.text import slugify
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 from django.db import models as djangoModel
 from django.views.generic.base import View
 from django.urls import reverse
@@ -14,11 +15,13 @@ import random, string
 
 class AuthorizeAccessDetailView(View):
 
-    def get(self, request, **kwargs):
-        obj = super().get_object()
-        if obj.user != request.user:
-            return HttpResponseForbidden('Unauthorized access')
-        return super().get(self, request, **kwargs)
+    def get_object(self):
+        object = get_object_or_404(self.model,slug=self.kwargs[self.slug_url_kwarg])
+        if not AutoCompletionView.security_login_check(object,self.request.user):
+            raise PermissionDenied()    
+        else:
+            return object
+        
 """     
 class AuthorizeAccessView(View):
 
@@ -98,10 +101,23 @@ class AutoCompletionView(View):
                 return False
         return success
         
+    @staticmethod
+    def security_login_check(pre_instance,user):
+        if pre_instance is None or not hasattr(pre_instance, 'user'):
+            return True
+        if pre_instance.user != user:
+            return False
+        else:
+            return True
+        
     def get(self, request, **kwargs):
         
         # Getting pre-instance
         pre_instance = self.model.objects.filter(slug=kwargs.get(self.main_slug_name)).first()
+        
+        # Security check
+        if not AutoCompletionView.security_login_check(pre_instance,request.user):
+            return HttpResponseForbidden('Unauthorized access')
         
         # Creating a new form
         if pre_instance is None:
@@ -131,6 +147,10 @@ class AutoCompletionView(View):
     
         # Initialize main form
         pre_instance = self.model.objects.filter(slug=kwargs.get(self.main_slug_name)).first()
+        
+        # Security check
+        if not AutoCompletionView.security_login_check(pre_instance,request.user):
+            return HttpResponseForbidden('Unauthorized access')
         
         if pre_instance is None:
             form = self.model_form(request.POST)
