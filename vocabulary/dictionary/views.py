@@ -139,7 +139,6 @@ class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
                 exp.delete()
         
     def post_save(self,update,**kwargs):
-    
         
         model_chosen = get_model_chosen(self.models_access_list,kwargs)
         if model_chosen is None:

@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import redirect    
 
 urlpatterns = [
-	path('public/', include('dictionary.urls')),
+	path('public/', include('dictionary.urls'),name="public_dir"),
 	path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('', lambda request: redirect('public/', permanent=True)),
 ]
