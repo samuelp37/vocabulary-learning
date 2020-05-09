@@ -12,7 +12,6 @@ from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from extra_views import CreateWithInlinesView, InlineFormSet
 import sys
 from django.db.models import Q
 
