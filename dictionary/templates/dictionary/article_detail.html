@@ -1,0 +1,43 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Lectures list
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% endblock %}
+
+{% block body %}
+	<h1>{{ article.title }}</h1>
+	<br>
+	<h2>Main information :</h2>
+	<a href="{% url 'update_article' slug_article=article.slug %}">
+		<button type="submit" class="btn btn-success">Update the article informations</button>
+	</a>
+	<a href="{% url 'delete_article' slug_article=article.slug %}">
+		<button class="btn btn-danger">
+			Delete the article
+		</button>
+	</a>
+	<br><br>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Newspaper : {{ article.newspaper }}
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Topic : {{ article.topic }}
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Link/Reference : {{ article.link }}
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Language : {{ article.language.name }}
+	</li>
+	<br>
+	<h2>Words :</h2>
+	<a href="{% url 'add_word_article' slug_article=article.slug %}">
+		<button type="submit" class="btn btn-success">Add a new word</button>
+	</a>
+	<br><br>
+	{% include "dictionary/list_words_abstract.html" with translations=article.translations slug_article=article.slug %}
+{% endblock %}

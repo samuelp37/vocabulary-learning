@@ -1,0 +1,27 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Updating a book
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+
+{% endblock %}
+
+{% block body %}
+
+<h1>Update the book</h1>
+<br>
+
+<form action="{% url 'update_book' slug_book=book.slug %}" method="post">
+	{% csrf_token %}
+    {{ form|crispy }}
+    <input class="btn btn-success" type="submit" value="Update the book">
+</form>
+{% endblock %}

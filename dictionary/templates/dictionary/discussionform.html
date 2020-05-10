@@ -1,0 +1,35 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Adding a translation
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% load static %}
+<script type="text/javascript">
+	var target_words = "{{ target_input_words }}";
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="{% static 'dictionary/dictionary/js/fields_not_required.js' %}"></script>
+<script src="{% static 'dictionary/dictionary/js/autocomplete_form.js' %}"></script>
+
+{% endblock %}
+
+{% block body %}
+
+<h1>Add/Update a discussion</h1>
+<br>
+
+{% if slug_discussion %}
+<form action="{% url 'update_discussion' slug_discussion=slug_discussion %}" method="post">
+{% else %}
+<form action="{% url 'add_discussion' %}" method="post">
+{% endif %}
+	{% csrf_token %}
+	{% include "dictionary/add_topic_form.html" with form=form_topic %}
+	{{ form|crispy }}
+	<button type="submit" class="btn btn-success">Add/Update a discussion</button>
+</form>
+{% endblock %}

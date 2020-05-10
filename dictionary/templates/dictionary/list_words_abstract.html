@@ -1,0 +1,70 @@
+	<table class="table">
+	  <thead class="thead-dark">
+		<tr>
+		  <th scope="col">Original word</th>
+		  <th scope="col">Translated word</th>
+		  <th scope="col">Added on</th>
+		  <th scope="col">Success</th>
+		  <th scope="col"></th>
+		  <th scope="col"></th>
+		  <th scope="col"></th>
+		</tr>
+	  </thead>
+	  <tbody>
+		  {% for translation in translations.all %}
+			  <tr>
+				  <td class="align-middle">{{ translation.original_str }}</td>
+				  <td class="align-middle">{{ translation.translated_str }}</td>
+				  <td class="align-middle">{{ translation.date_added|date:'d/m/Y' }}</td>
+				  <td class="align-middle">{{ translation.get_ratio_success }}</td>
+				  <td>
+				    {% if slug_book %}
+					<a href="{% url 'view_translation_book' slug_book=slug_book slug=translation.slug %}">
+					{% elif slug_article %}
+					<a href="{% url 'view_translation_article' slug_article=slug_article slug=translation.slug %}">
+					{% elif slug_discussion %}
+					<a href="{% url 'view_translation_discussion' slug_discussion=slug_discussion slug=translation.slug %}">
+					{% else %}
+					<a href="{% url 'details_translation' slug=translation.slug %}">
+					{% endif %}
+						<button class="btn btn-primary">
+							<i class="fa fa-eye" aria-hidden="true"></i>
+						</button>
+					</a>
+				  </td>
+				  <td>
+					{% if slug_book %}
+				    <a href="{% url 'update_translation_book' slug_book=slug_book slug=translation.slug %}">
+					{% elif slug_article %}
+				    <a href="{% url 'update_translation_article' slug_article=slug_article slug=translation.slug %}">
+					{% elif slug_discussion %}
+				    <a href="{% url 'update_translation_discussion' slug_discussion=slug_discussion slug=translation.slug %}">
+					{% else %}
+					<a href="{% url 'update_translation' slug=translation.slug %}" method="post">
+					{% endif %}
+					  <button class="btn btn-success">
+				         <i class="fa fa-pen" aria-hidden="true"></i>
+					  </button>
+					</a>
+				  </td>
+				  <td>
+				    {% if slug_book %}
+				    <a href="{% url 'delete_translation_book' slug_book=slug_book slug=translation.slug %}">
+					{% elif slug_article %}
+				    <a href="{% url 'delete_translation_article' slug_article=slug_article slug=translation.slug %}">
+					{% elif slug_discussion %}
+				    <a href="{% url 'delete_translation_discussion' slug_discussion=slug_discussion slug=translation.slug %}">
+					{% else %}
+					<a href="{% url 'delete_translation' slug=translation.slug %}" method="post">
+					{% endif %}
+					  <button class="btn btn-danger">
+						<i class="fa fa-times" aria-hidden="true"></i>
+					  </button>
+					</a>
+				  </td>
+			  </tr>
+		  {% empty %}
+		  No translations yet.
+	      {% endfor %}
+      </tbody>
+	</table>

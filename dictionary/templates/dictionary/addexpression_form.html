@@ -1,0 +1,23 @@
+{% load crispy_forms_tags %}
+
+<div class="adding_item">
+	<div class="parameters" style="display:none">
+		<div class="url_autocomplete"></div>
+		<div class="prefix">{{ form.prefix }}</div>
+		<div class="list_fields">{{ form.list_fields|safe }}</div>
+	</div>
+	<fieldset>
+		<legend>{{ form.title }}</legend>
+		<div class="row">
+		  <div class="col-10">
+			{{ form.expression|as_crispy_field }}
+		  </div>
+		  <div class="col-2">
+			{{ form.language|as_crispy_field }}
+		  </div>
+		</div>
+		<ul class="list-group list_words">
+		</ul>
+	</fieldset>
+</div>
+<br>

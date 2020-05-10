@@ -1,0 +1,45 @@
+{% extends 'dictionary/base_global.html' %}
+
+{% block title %}
+Lectures list
+{% endblock %}
+
+{% block libraries %}
+{% load crispy_forms_tags %}
+{% endblock %}
+
+{% block body %}
+	<h1>{{ discussion.title }}</h1>
+	<br>
+	<h2>Main information :</h2>
+	<a href="{% url 'update_discussion' slug_discussion=discussion.slug %}">
+		<button type="submit" class="btn btn-success">Update the discussion informations</button>
+	</a>
+	<a href="{% url 'delete_discussion' slug_discussion=discussion.slug %}">
+		<button class="btn btn-danger">
+			Delete the discussion
+		</button>
+	</a>
+	<br><br>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Topic : {{ discussion.topic }}
+	</li>
+	<li class="list-group-item d-flex justify-content-between align-items-center">
+		Language : {{ discussion.language.name }}
+	</li>
+	<br>
+	<h3>Content :</h3>
+	<br>
+	<h4>Original version</h4>
+	{{ discussion.original_content }}
+	<br>
+	<h4>Translated version</h4>
+	{{ discussion.translated_content }}
+	<br><br>
+	<h2>Words :</h2>
+	<a href="{% url 'add_word_discussion' slug_discussion=discussion.slug %}">
+		<button type="submit" class="btn btn-success">Add a new word</button>
+	</a>
+	<br><br>
+	{% include "dictionary/list_words_abstract.html" with translations=discussion.translations slug_discussion=discussion.slug %}
+{% endblock %}
