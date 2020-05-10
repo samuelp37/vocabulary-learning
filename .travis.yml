@@ -9,5 +9,7 @@ install:
 services:
   - postgresql
 # command to run tests
+before_script:
+  - psql -c 'create database local_vocabulary;' -U sam
 script:
   - python manage.py test
