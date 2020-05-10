@@ -329,7 +329,7 @@ class Translation(models.Model):
     context_sentence = models.TextField("Context original sentence",default='',null=True,blank=True)
     translation_context_sentence = models.TextField("Translation of the context sentence",default='',null=True,blank=True)
     
-    slug = models.SlugField("Slug",max_length=100,default='',null=True,blank=True)
+    slug = models.SlugField("Slug",max_length=400,default='',null=True,blank=True)
     
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     

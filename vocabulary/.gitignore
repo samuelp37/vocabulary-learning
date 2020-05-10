@@ -6,3 +6,4 @@
 
 # Database
 *.sqlite3
+*.json

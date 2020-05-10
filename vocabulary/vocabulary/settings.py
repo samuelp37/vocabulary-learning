@@ -75,7 +75,7 @@ WSGI_APPLICATION = 'vocabulary.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -86,21 +86,19 @@ DATABASES = {
         'PORT': '',
     }
 }
-
+"""
 #print(os.path.join(BASE_DIR, 'db.sqlite3'))
 
-"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'local_vocabulary',
-        'USER': 'samuelp',
-        'PASSWORD': 'PWV5K.8.m#*;d3"qK1',
+        'USER': 'sam',
+        'PASSWORD': 'o5EAX9BUKs7KfVtqUTEU',
         'HOST': 'localhost',
         'PORT': '5432',
     }
 }
-"""
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
