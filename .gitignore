@@ -7,3 +7,6 @@
 # Database
 *.sqlite3
 *.json
+
+# Static files (whitenoise)
+**/staticfiles
