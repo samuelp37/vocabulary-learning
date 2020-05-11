@@ -21,12 +21,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'i@+)zotb1_$_u=5v)y2zh-e%p!qowp2n=+x70cl=+%6kje*5n%')
+SECRET_KEY = os.environ.get('DJANGO_VOCABULARY_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = ['vocabulary-app-39330458558.herokuapp.com/', '127.0.0.1']
+ALLOWED_HOSTS = [os.environ.get('DJANGO_VOCABULARY_HOST')]
 
 # Application definition
 
@@ -75,28 +75,13 @@ WSGI_APPLICATION = 'vocabulary.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'USER': 'samuelp',
-        'PASSWORD': 'PWV5K.8.m#*;d3"qK1',
-        'HOST': '',
-        'PORT': '',
-    }
-}
-"""
-#print(os.path.join(BASE_DIR, 'db.sqlite3'))
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'local_vocabulary',
-        'USER': 'sam',
-        'PASSWORD': 'o5EAX9BUKs7KfVtqUTEU',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ['DJANGO_VOCABULARY_DATABASE_NAME'],
+        'USER': os.environ['DJANGO_VOCABULARY_DATABASE_USER'],
+        'PASSWORD': os.environ['DJANGO_VOCABULARY_DATABASE_PASSWORD'],
     }
 }
 
