@@ -14,3 +14,10 @@ before_script:
 script:
   - python manage.py collectstatic --noinput
   - python manage.py test
+deploy:
+  provider: heroku
+  api_key:
+    secure: "YLv6MKHBgzAVbSz4SYDGpHS3Wwf545CKE7Bg7xUTt8IjGw819qN7RcyzRPoOXBdHOUUNRT298vdPHgbL3lLSQkJeGptqo4U5MbGoWvU5zKjaRmoqoY7Ei1DJeQlcmDIBZ1L2efnJFAl+pDN5SHsF3FK632ddH9bMqgBMVV2qlJbPT7Y8dqR14gkhOx2nQoiKuvgS2EvwGyZtj09sZy3ToR2GBYmTLPC9tRqfSvKdWDdsBtVGQtWug8YPwNDtOadahiIYmg4ATPycRdyFvWBU43J7HOYiiP3YxwaSBHaFVl+dmYlpu56HQvhn+3uarF8HHZkqGP14e0MO2EtX6rTCJLL/mAm9oExJb5dpDAVI8Jjkppqh/fGh52Vwyc5/YgGYvqMNVq41RdM23xLKi/qqWvDGn1J06J0LPWULsrupIwjhoD4mBpqdwjlGbJI4z4fX5KFr/Rj6cCQZ13BEYHqp5NVQNDwDqN5+gxKUz8X/JC9jJulVHOSYniZ97oUZAu9WhGn2dNjxa3MWc3se8b0SzD9S1HEeJk9CO5/yYfJKVVZb6kU7pKnmlekpk3YEEaDVNWbrDaKorIs4A74AIyBj/ULW9f3Xo7ctlQWT3JxLHApF83BHG+hvY+ZIyyDLxHhTBDlGhGIxxmC60isV35dSe0TAl4jfcWmEReqYJrxdjwc="
+  app: vocabulary-app-39330458558
+  on:
+    repo: samuelp37/vocabulary-learning 
