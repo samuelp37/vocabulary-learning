@@ -33,10 +33,37 @@ class AuthorFactory(factory.django.DjangoModelFactory):
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
 
+class TopicFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Topic
+    name = factory.Faker('word')
+
+class NewspaperFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Newspaper
+    name = factory.Faker('word')
+
 class BookFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Book
     author = factory.SubFactory(AuthorFactory)
+    title = factory.Faker('sentence')
+    user = factory.SubFactory(UserFactory)
+    language = factory.SubFactory(LanguageFactory)
+
+class ArticleFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Article
+    newspaper = factory.SubFactory(NewspaperFactory)
+    topic = factory.SubFactory(TopicFactory)
+    title = factory.Faker('sentence')
+    user = factory.SubFactory(UserFactory)
+    language = factory.SubFactory(LanguageFactory)
+
+class DiscussionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Discussion
+    topic = factory.SubFactory(TopicFactory)
     title = factory.Faker('sentence')
     user = factory.SubFactory(UserFactory)
     language = factory.SubFactory(LanguageFactory)
