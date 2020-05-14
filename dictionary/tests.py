@@ -4,6 +4,8 @@ from django.contrib.auth.models import AnonymousUser
 from .views import *
 from . import models
 from django.urls import reverse
+import factory
+from . import factories
 
 class TestHomeNoMember(TestCase):
     def test_home_nomember(self):
@@ -210,3 +212,87 @@ class TranslationsList(TestCase):
 
         else:
             pass
+
+class CreateBookView(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.request = self.factory.get(reverse('add_book'))
+        self.authors_count = models.Author.objects.count()
+        self.books_count = models.Book.objects.count()
+
+    def test_create_book_anonymous(self):
+        self.request.user = AnonymousUser()
+        response = CreateUpdateBookView.as_view()(self.request)
+
+        # Checking whether the user is redirected to the login page
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login",response.url)
+
+    def test_get_create_book_logged(self):
+        # Testing access to the form to create book
+        user = factories.UserFactory.create()
+        self.request.user = user
+        response = CreateUpdateBookView.as_view()(self.request)
+
+        # Checking whether the user is redirected to the login page
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_create_book_logged_noauthor_firstname(self):
+        # test assessing whether the view is correctly configured if no author is provided
+        user = factories.UserFactory.create()
+
+        self.factory = RequestFactory()
+        self.request = self.factory.post(reverse('add_book'))
+        self.request.user = user
+        self.request.POST = self.request.POST.copy()
+        self.request.POST['author-first_name'] = ''
+        self.request.POST['author-last_name'] = factory.Faker('last_name')
+        self.request.POST['title'] = factory.Faker('sentence')
+        self.request.POST['language'] = factories.LanguageFactory.create().pk
+        response = CreateUpdateBookView.as_view()(self.request)
+
+        # Checking whether the user with no activity does not really see any translation
+        self.assertEqual(models.Author.objects.count(),self.authors_count)
+        self.assertEqual(models.Book.objects.count(),self.books_count)
+        self.assertEqual(response.status_code, 200)
+        #self.assertRedirects(response, reverse('add_book'))
+
+    def test_post_create_book_logged_notitle(self):
+        # test assessing whether the view is correctly configured if no author is provided
+        user = factories.UserFactory.create()
+
+        self.factory = RequestFactory()
+        self.request = self.factory.post(reverse('add_book'))
+        self.request.user = user
+        self.request.POST = self.request.POST.copy()
+        self.request.POST['author-first_name'] = factory.Faker('first_name')
+        self.request.POST['author-last_name'] = factory.Faker('last_name')
+        self.request.POST['title'] = ''
+        self.request.POST['language'] = factories.LanguageFactory.create().pk
+        response = CreateUpdateBookView.as_view()(self.request)
+
+        # Checking whether the user with no activity does not really see any translation
+        self.assertEqual(models.Book.objects.count(),self.books_count)
+        self.assertEqual(response.status_code, 200)
+        #self.assertRedirects(response, reverse('add_book'))
+
+    def test_post_create_book_logged_valid(self):
+        # test assessing whether the view is correctly configured if no author is provided
+        user = factories.UserFactory.create()
+
+        self.factory = RequestFactory()
+        self.request = self.factory.post(reverse('add_book'))
+        self.request.user = user
+        self.request.POST = self.request.POST.copy()
+        self.request.POST['author-first_name'] = factory.Faker('first_name')
+        self.request.POST['author-last_name'] = factory.Faker('last_name')
+        self.request.POST['title'] = factory.Faker('sentence')
+        self.request.POST['language'] = factories.LanguageFactory.create().pk
+        response = CreateUpdateBookView.as_view()(self.request)
+
+        # Checking whether the user with no activity does not really see any translation
+        self.assertEqual(models.Author.objects.count(),self.authors_count+1)
+        self.assertEqual(models.Book.objects.count(),self.books_count+1)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('list_book'))

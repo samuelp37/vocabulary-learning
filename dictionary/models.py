@@ -92,8 +92,8 @@ class Quizz(models.Model):
 
 class Author(models.Model):
 
-    first_name = models.CharField("First name",max_length=100,default='',null=True,blank=True)
-    last_name = models.CharField("Last name",max_length=100,default='',null=True,blank=True)
+    first_name = models.CharField("First name",max_length=100,default='')
+    last_name = models.CharField("Last name",max_length=100,default='')
     
     def __str__(self):
         return self.first_name+" "+self.last_name
@@ -104,7 +104,7 @@ class Author(models.Model):
  
 class Language(models.Model):
     
-    name = models.CharField("Name",max_length=100,default='',null=True,blank=True)
+    name = models.CharField("Name",max_length=100,default='')
     
     def __str__(self):
         return self.name
@@ -161,7 +161,7 @@ class Book(Support):
         
 class Newspaper(models.Model):
 
-    name = models.CharField("Name",max_length=100,default='',null=True,blank=True)
+    name = models.CharField("Name",max_length=100,default='')
     
     def __str__(self):
         return self.name
@@ -172,7 +172,7 @@ class Newspaper(models.Model):
         
 class Topic(models.Model):
 
-    name = models.CharField("Name",max_length=100,default='',null=True,blank=True)
+    name = models.CharField("Name",max_length=100,default='')
     
     def __str__(self):
         return self.name
@@ -234,8 +234,8 @@ class Discussion(Support):
 
 class Gender(models.Model):
 
-    short = models.CharField("Short Gender",max_length=1,default='',null=True,blank=True)
-    gender = models.CharField("Gender",max_length=20,default='',null=True,blank=True)
+    short = models.CharField("Short Gender",max_length=1,default='')
+    gender = models.CharField("Gender",max_length=20,default='')
     
     def __str__(self):
         return self.gender
