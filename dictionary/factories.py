@@ -50,6 +50,7 @@ class BookFactory(factory.django.DjangoModelFactory):
     title = factory.Faker('sentence')
     user = factory.SubFactory(UserFactory)
     language = factory.SubFactory(LanguageFactory)
+    slug = factory.Faker('slug')
 
 class ArticleFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -59,6 +60,7 @@ class ArticleFactory(factory.django.DjangoModelFactory):
     title = factory.Faker('sentence')
     user = factory.SubFactory(UserFactory)
     language = factory.SubFactory(LanguageFactory)
+    slug = factory.Faker('slug')
 
 class DiscussionFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -67,6 +69,7 @@ class DiscussionFactory(factory.django.DjangoModelFactory):
     title = factory.Faker('sentence')
     user = factory.SubFactory(UserFactory)
     language = factory.SubFactory(LanguageFactory)
+    slug = factory.Faker('slug')
 
 class GenderFactory(factory.django.DjangoModelFactory):
     class Meta:

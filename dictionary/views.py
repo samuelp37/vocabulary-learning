@@ -213,7 +213,7 @@ class DeleteTranslationView(AuthorizeAccessDetailView,DeleteView):
             dict = model_chosen.translation_utils()
             return reverse('details_'+dict["model_link_attr"], kwargs={model_chosen.extern_slug():self.kwargs[model_chosen.extern_slug()]})
             
-class DeleteBookView(AuthorizeAccessDetailView,DeleteView):
+class DeleteBookView(LoginRequiredMixin,AuthorizeAccessDetailView,DeleteView):
     model = models.Book
     slug_url_kwarg = 'slug_book'
     template_name = 'dictionary/confirm_delete.html'

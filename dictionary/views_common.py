@@ -18,10 +18,24 @@ class AuthorizeAccessDetailView(View):
     def get_object(self):
         object = get_object_or_404(self.model,slug=self.kwargs[self.slug_url_kwarg])
         if not AutoCompletionView.security_login_check(object,self.request.user):
-            raise PermissionDenied()    
+            return None
         else:
             return object
-        
+
+    def post(self,request,**kwargs):
+        object = self.get_object()
+        if object is None:
+            return HttpResponseForbidden('Unauthorized access')
+        else:
+            return super().post(request,**kwargs)
+
+    def get(self,request,**kwargs):
+        object = self.get_object()
+        if object is None:
+            return HttpResponseForbidden('Unauthorized access')
+        else:
+            return super().get(request,**kwargs)
+
 """     
 class AuthorizeAccessView(View):
 
@@ -111,14 +125,14 @@ class AutoCompletionView(View):
             return True
         
     def get(self, request, **kwargs):
-        
+
         # Getting pre-instance
         pre_instance = self.model.objects.filter(slug=kwargs.get(self.main_slug_name)).first()
-        
+
         # Security check
         if not AutoCompletionView.security_login_check(pre_instance,request.user):
             return HttpResponseForbidden('Unauthorized access')
-        
+
         # Creating a new form
         if pre_instance is None:
             form = self.model_form()
@@ -177,6 +191,7 @@ class AutoCompletionView(View):
                 
                 return self.redirect_success(request,**kwargs)
         
+        self.clean_useless_records()
         return self.redirect_fail(request,**kwargs)
 
     
