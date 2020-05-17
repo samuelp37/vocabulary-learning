@@ -51,8 +51,8 @@ class TestCreateArticleView(TestCase):
 
         # Creatng a POST request while omitting the title
         self.request.POST = self.request.POST.copy()
-        self.request.POST['newspaper-name'] = factory.Faker('word')
-        self.request.POST['topic-name'] = factory.Faker('word')
+        self.request.POST['newspaper-name'] = factory.Faker('word').generate({})[:70]
+        self.request.POST['topic-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['title'] = factory.Faker('sentence').generate({})[:70]
         self.request.POST['language'] = factories.LanguageFactory.create().pk
 
@@ -95,7 +95,7 @@ class TestCreateArticleView(TestCase):
         # Creatng a POST request while omitting the author first name
         self.request.POST = self.request.POST.copy()
         self.request.POST['newspaper-name'] = ''
-        self.request.POST['topic-name'] = factory.Faker('word')
+        self.request.POST['topic-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['title'] = factory.Faker('sentence').generate({})[:70]
         self.request.POST['language'] = factories.LanguageFactory.create().pk
 
@@ -126,7 +126,7 @@ class TestCreateArticleView(TestCase):
 
         # Creatng a POST request while omitting the author first name
         self.request.POST = self.request.POST.copy()
-        self.request.POST['newspaper-name'] = factory.Faker('word')
+        self.request.POST['newspaper-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['topic-name'] = ''
         self.request.POST['title'] = factory.Faker('sentence').generate({})[:70]
         self.request.POST['language'] = factories.LanguageFactory.create().pk
@@ -158,8 +158,8 @@ class TestCreateArticleView(TestCase):
 
         # Creatng a POST request while omitting the title
         self.request.POST = self.request.POST.copy()
-        self.request.POST['newspaper-name'] = factory.Faker('word')
-        self.request.POST['topic-name'] = factory.Faker('word')
+        self.request.POST['newspaper-name'] = factory.Faker('word').generate({})[:70]
+        self.request.POST['topic-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['title'] = ''
         self.request.POST['language'] = factories.LanguageFactory.create().pk
         
@@ -190,8 +190,8 @@ class TestCreateArticleView(TestCase):
 
         # Creatng a POST request with valid parameters
         self.request.POST = self.request.POST.copy()
-        self.request.POST['newspaper-name'] = factory.Faker('word')
-        self.request.POST['topic-name'] = factory.Faker('word')
+        self.request.POST['newspaper-name'] = factory.Faker('word').generate({})[:70]
+        self.request.POST['topic-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['title'] = factory.Faker('sentence').generate({})[:70]
         self.request.POST['language'] = factories.LanguageFactory.create().pk
 
@@ -280,8 +280,8 @@ class TestUpdateArticleView(TestCase):
         
         # Configuring the POST request with valid parameters
         self.request.POST = self.request.POST.copy()
-        self.request.POST['newspaper-name'] = factory.Faker('word')
-        self.request.POST['topic-name'] = factory.Faker('word')
+        self.request.POST['newspaper-name'] = factory.Faker('word').generate({})[:70]
+        self.request.POST['topic-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['title'] = factory.Faker('sentence').generate({})[:70]
         self.request.POST['language'] = factories.LanguageFactory.create().pk
 
@@ -342,8 +342,8 @@ class TestUpdateArticleView(TestCase):
 
          # Configuring the POST request with valid parameters
         self.request.POST = self.request.POST.copy()
-        self.request.POST['newspaper-name'] = factory.Faker('word')
-        self.request.POST['topic-name'] = factory.Faker('word')
+        self.request.POST['newspaper-name'] = factory.Faker('word').generate({})[:70]
+        self.request.POST['topic-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['title'] = factory.Faker('sentence').generate({})[:70]
         self.request.POST['language'] = factories.LanguageFactory.create().pk
 
@@ -370,8 +370,8 @@ class TestUpdateArticleView(TestCase):
 
         # Creatng a POST request while omitting the title
         self.request.POST = self.request.POST.copy()
-        self.request.POST['newspaper-name'] = factory.Faker('word')
-        self.request.POST['topic-name'] = factory.Faker('word')
+        self.request.POST['newspaper-name'] = factory.Faker('word').generate({})[:70]
+        self.request.POST['topic-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['title'] = ''
         self.request.POST['language'] = factories.LanguageFactory.create().pk
         
@@ -406,8 +406,8 @@ class TestUpdateArticleView(TestCase):
 
         # Creatng a POST request with valid parameters
         self.request.POST = self.request.POST.copy()
-        self.request.POST['newspaper-name'] = factory.Faker('word').generate({})
-        self.request.POST['topic-name'] = factory.Faker('word').generate({})
+        self.request.POST['newspaper-name'] = factory.Faker('word').generate({})[:70]
+        self.request.POST['topic-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['title'] = factory.Faker('sentence').generate({})[:70]
         self.request.POST['language'] = factories.LanguageFactory.create().pk
 
