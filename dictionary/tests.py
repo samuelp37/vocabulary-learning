@@ -17,14 +17,6 @@ class TestRootNoMember(TestCase):
         resp = self.client.get('/')
         self.assertEqual(resp.status_code, 301)
 
-class TestArticlesList(TestSupportList,TestCase):
-
-    factory = RequestFactory()
-    url_name = 'list_article'
-    request = factory.get(reverse(url_name))
-    supportView = ArticlesListView
-    supportFactory = factories.ArticleFactory
-
 class TestDiscussionsList(TestSupportList,TestCase):
 
     factory = RequestFactory()

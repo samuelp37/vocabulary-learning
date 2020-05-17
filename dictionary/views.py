@@ -266,7 +266,7 @@ class ArticleView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailView):
     template_name = 'dictionary/article_detail.html'
     slug_url_kwarg = 'slug_article'
         
-class DeleteArticleView(AuthorizeAccessDetailView,DeleteView):
+class DeleteArticleView(LoginRequiredMixin,AuthorizeAccessDetailView,DeleteView):
     model = models.Article
     slug_url_kwarg = 'slug_article'
     template_name = 'dictionary/confirm_delete.html'
