@@ -48,7 +48,7 @@ class TestCreateDiscussionView(TestCase):
         self.request = self.factory.post(reverse('add_discussion'))
         self.request.user = AnonymousUser()
 
-        # Creatng a POST request while omitting the title
+        # Creatng a POST request with valid parameters
         self.request.POST = self.request.POST.copy()
         self.request.POST['topic-name'] = factory.Faker('word')
         self.request.POST['title'] = factory.Faker('sentence').generate({})[:70]
