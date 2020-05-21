@@ -342,6 +342,9 @@ class CreateReviewView(LoginRequiredMixin,View):
         form = self.model_form(request.POST)
         
         number_questions = int(request.POST['number_questions'])
+        if number_questions<0:
+            number_questions = 10
+
         if 'original_to_translated' in request.POST:
             original_to_translated = True
         else:
@@ -355,9 +358,12 @@ class CreateReviewView(LoginRequiredMixin,View):
         quizz_instance.save()
         
         if ordering_policy=="random":
-            translations_list = models.Translation.objects.all().order_by('?')[:number_questions]
+            translations_list = models.Translation.objects.filter(user=user).all().order_by('?')[:number_questions]
+        elif ordering_policy=="LRU":
+            ordering_policy="LRU"
+            translations_list = models.Translation.objects.filter(user=user).all().order_by('?')[:number_questions]
         else:
-            raise Exception("Not implemented yet")
+            return HttpResponseForbidden('Unauthorized access')
         
         for translation in translations_list:
             slug = "quizz_item_"+random_str(40)
@@ -408,6 +414,9 @@ class QuizzAnalysisReviewItemView(LoginRequiredMixin,AuthorizeAccessDetailView,V
         quizz_item = get_object_or_404(models.QuizzItem,slug=slug_item)
         quizz = get_object_or_404(models.Quizz,slug=slug_quizz)
         
+        if quizz.user!=request.user:
+            return HttpResponseForbidden("Access forbidden")
+
         current_datetime = datetime.datetime.now(datetime.timezone.utc)
         delta_datetime = current_datetime-quizz_item.delivered_on
         delta_reply_seconds = delta_datetime.total_seconds()
@@ -434,6 +443,9 @@ class ResumeReviewView(LoginRequiredMixin,AuthorizeAccessDetailView,View):
         slug_quizz = self.kwargs[self.slug_url_kwarg]
         quizz = get_object_or_404(self.model,slug=slug_quizz)
         
+        if quizz.user!=request.user:
+            return HttpResponseForbidden("Access forbidden")
+
         next_quizz_item = quizz.items.all().filter(success=None).first()
         print(next_quizz_item)
         
@@ -458,7 +470,7 @@ class ReviewView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailView):
     template_name = 'dictionary/review_detail.html'
     slug_url_kwarg = 'slug_review'
         
-class DeleteReviewView(AuthorizeAccessDetailView,DeleteView):
+class DeleteReviewView(LoginRequiredMixin,AuthorizeAccessDetailView,DeleteView):
     model = models.Quizz
     slug_url_kwarg = 'slug_review'
     template_name = 'dictionary/confirm_delete.html'

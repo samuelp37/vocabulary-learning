@@ -15,6 +15,13 @@ class GenderProvider(BaseProvider):
         return chosen,long_gender
 fake_gender.add_provider(GenderProvider)
 
+fake_boolean = Faker()
+class BooleanProvider(BaseProvider):
+    def boolean(self):
+        chosen = random.choice([True,False])
+        return chosen
+fake_boolean.add_provider(BooleanProvider)
+
 class LanguageFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Language
@@ -137,3 +144,26 @@ class TranslationLinkDiscussionFactory(factory.django.DjangoModelFactory):
         model = models.TranslationLinkDiscussion
     item = factory.SubFactory(TranslationFactory)
     discussion = factory.SubFactory(DiscussionFactory)
+
+class QuizzFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Quizz
+    user = factory.SubFactory(UserFactory)
+    date_quizz = factory.Faker('date')
+    slug = factory.Faker('slug')
+
+class QuizzItemFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.QuizzItem
+    translation = factory.SubFactory(TranslationFactory)
+    original_to_translate = fake_boolean.boolean()
+    delivered_on = factory.Faker('date_time')
+    delta_reply = factory.Faker('random_number')
+    slug = factory.Faker('slug')
+    success = fake_boolean.boolean()
+
+class QuizzLinkItemFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.QuizzLinkItem
+    quizz = factory.SubFactory(QuizzFactory)
+    quizz_item = factory.SubFactory(QuizzItemFactory)

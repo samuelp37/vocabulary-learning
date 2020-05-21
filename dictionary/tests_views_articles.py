@@ -49,7 +49,7 @@ class TestCreateArticleView(TestCase):
         self.request = self.factory.post(reverse('add_article'))
         self.request.user = AnonymousUser()
 
-        # Creatng a POST request while omitting the title
+        # Creatng a POST request
         self.request.POST = self.request.POST.copy()
         self.request.POST['newspaper-name'] = factory.Faker('word').generate({})[:70]
         self.request.POST['topic-name'] = factory.Faker('word').generate({})[:70]

@@ -49,6 +49,7 @@ urlpatterns = [
     
     path('member/review/delete/<str:slug_review>', views.DeleteReviewView.as_view(), name='delete_review'),
     path('member/review/details/<str:slug_review>', views.ReviewView.as_view(), name='details_review'),
+    # Recover previous session
     path('member/review/resume/<str:slug_review>', views.ResumeReviewView.as_view(), name='resume_review'),
     
     path('member/review/details/<str:slug_review>/review_item/<str:slug_item>', views.QuizzReviewItemView.as_view(), name='quizz_review_item'),
