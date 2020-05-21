@@ -199,7 +199,7 @@ class TranslationView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailView):
         context[model_chosen.extern_slug()] = model_chosen.extern_slug()
         return context
         
-class DeleteTranslationView(AuthorizeAccessDetailView,DeleteView):
+class DeleteTranslationView(LoginRequiredMixin,AuthorizeAccessDetailView,DeleteView):
     model = models.Translation
     slug_url_kwarg = 'slug'
     template_name = 'dictionary/confirm_delete.html'
@@ -376,9 +376,10 @@ class QuizzReviewItemView(LoginRequiredMixin,AuthorizeAccessDetailView,DetailVie
     
     def get_object(self):
         quizz_item = super().get_object()
-        quizz_item.delivered_on = datetime.datetime.now(datetime.timezone.utc)
-        quizz_item.save()
-        return quizz_item
+        if quizz_item is not None:
+            quizz_item.delivered_on = datetime.datetime.now(datetime.timezone.utc)
+            quizz_item.save()
+            return quizz_item
         
     def get_context_data(self, **kwargs):
         context = super(QuizzReviewItemView, self).get_context_data(**kwargs)

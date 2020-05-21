@@ -25,7 +25,11 @@ class QuizzItem(models.Model):
     
     def __str__(self):
         return "Quizz : " + self.translation.__str__()
-        
+    
+    @property
+    def user(self):
+        return QuizzLinkItem.objects.get(quizz_item=self).quizz.user
+    
     @property
     def get_duration_s(self):
         if self.success:
@@ -84,7 +88,10 @@ class Quizz(models.Model):
     
     @property
     def get_ratio_success_asint_percentage(self):
-        return int(100*self.count_success_questions_quizz/self.count_questions_quizz)
+        if self.count_questions_quizz>0:
+            return int(100*self.count_success_questions_quizz/self.count_questions_quizz)
+        else:
+            return 0
 		
     class Meta:
         verbose_name = "Quizz"

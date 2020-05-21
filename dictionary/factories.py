@@ -119,3 +119,21 @@ class TranslationFactory(factory.django.DjangoModelFactory):
     translation_context_sentence = ""
     slug = factory.Faker('slug')
     user = factory.SubFactory(UserFactory)
+
+class TranslationLinkFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TranslationLink
+    item = factory.SubFactory(TranslationFactory)
+    book = factory.SubFactory(BookFactory)
+
+class TranslationLinkArticleFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TranslationLinkArticle
+    item = factory.SubFactory(TranslationFactory)
+    article = factory.SubFactory(ArticleFactory)
+
+class TranslationLinkDiscussionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TranslationLinkDiscussion
+    item = factory.SubFactory(TranslationFactory)
+    discussion = factory.SubFactory(DiscussionFactory)
