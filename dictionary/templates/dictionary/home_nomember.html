@@ -2,6 +2,19 @@
 
 {% block body %}
   
+	<div class="text_home">
+	  <h1>Vocabulary learning tool</h1>
+	  <br>
+	  <p>
+		<a href="{% url 'login' %}">
+			<input class="btn btn-primary login" value="Log in" />
+		</a>
+		<a href="{% url 'signup' %}">
+			<input class="btn btn-primary login" value="Sign up" />
+		</a>
+	  </p>
+	</div>
+	<!--
     <div class="col-md-6 offset-md-3">
 		
 		<h1 class="secondary text-center">
@@ -21,5 +34,6 @@
 		  </div>
 		</div>
 	</div>
+	-->
   
 {% endblock %}

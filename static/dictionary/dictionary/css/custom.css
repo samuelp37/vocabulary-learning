@@ -1,5 +1,44 @@
+body,html{
+	height:100%;
+	width:100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body.color{
 	background-color: #00487C!important;
+}
+
+.background_home{
+	height:100%;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.container_home{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 2;
+	width:80%;
+}
+
+.text_home {
+  background-color: rgba(0,0,0,0.5);
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 80%;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 0 5px 5px #000000;
 }
 
 input.login{

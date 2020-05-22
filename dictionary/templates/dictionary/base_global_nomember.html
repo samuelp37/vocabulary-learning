@@ -21,13 +21,15 @@
 
 </head>
 
-<body class="color">
+<body>
+	
+	
+	<div class="background_home" style="background-image:url({% static 'dictionary/dictionary/images/background.jpg' %});">
+	</div>
 	
 	{% block nav %}
     {% endblock %}
-  <div class="content">
-    <div class="col-lg-10 mx-auto">
-	  {% block body %}{% endblock %}
-    </div>
-  </div>
+	<div class="container_home">
+	{% block body %}{% endblock %}
+	</div>
 </body>
