@@ -17,6 +17,8 @@ from django.db.models import Q
 
 from .views_common import *
 import datetime
+import plotly.offline as opy
+import plotly.graph_objs as go
 
 class HomeNoMemberView(TemplateView):
 
@@ -25,6 +27,35 @@ class HomeNoMemberView(TemplateView):
 class HomeMemberView(LoginRequiredMixin,TemplateView):
 
     template_name = 'dictionary/home_member.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HomeMemberView, self).get_context_data(**kwargs)
+
+        x = [-2,0,4,6,7]
+        y = [q**2-q+3 for q in x]
+        trace1 = go.Scatter(x=x, y=y, marker={'color': 'red', 'symbol': 104, 'size': 10},
+                            mode="lines",  name='1st Trace')
+
+        data=go.Data([trace1])
+        layout=go.Layout(title="", xaxis={'title':'Last 7 days'}, yaxis={'title':'Number of words reviewed'},margin={'l':10,'r':10,'t':10,'b':10},height=200)
+        figure=go.Figure(data=data,layout=layout)
+        div = opy.plot(figure, auto_open=False, output_type='div')
+
+        context['graph'] = div
+
+        x = [-2,0,4,6,7]
+        y = [q**2-q+3 for q in x]
+        trace1 = go.Scatter(x=x, y=y, marker={'color': 'red', 'symbol': 104, 'size': 10},
+                            mode="lines",  name='1st Trace')
+
+        data=go.Data([trace1])
+        layout=go.Layout(title="", xaxis={'title':'Last 7 days'}, yaxis={'title':'Number of words reviewed'},margin={'l':10,'r':10,'t':10,'b':10},height=200)
+        figure=go.Figure(data=data,layout=layout)
+        div = opy.plot(figure, auto_open=False, output_type='div')
+
+        context['graphb'] = div
+
+        return context
     
 class WordAutocompleteView(LoginRequiredMixin,View,AutoCompletionNestedField):
 
@@ -477,3 +508,5 @@ class DeleteReviewView(LoginRequiredMixin,AuthorizeAccessDetailView,DeleteView):
         
     def get_success_url(self):
         return reverse('list_reviews')
+
+#

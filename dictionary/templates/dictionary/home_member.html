@@ -1,6 +1,98 @@
 {% extends 'dictionary/base_global.html' %}
 
 {% block body %}
-  
-  
+{% load static %}
+
+<h2>Getting started</h2>
+
+<div id="getting-started" class="carousel slide" data-ride="carousel">
+
+  <!-- Indicators -->
+  <ul class="carousel-indicators">
+	<li data-target="#getting-started" data-slide-to="0" class="active"></li>
+	<li data-target="#getting-started" data-slide-to="1"></li>
+	<li data-target="#getting-started" data-slide-to="2"></li>
+	<li data-target="#getting-started" data-slide-to="3"></li>
+	<li data-target="#getting-started" data-slide-to="4"></li>
+  </ul>
+
+  <!-- The slideshow -->
+  <div class="carousel-inner">
+	<div class="carousel-item active">
+	  <img src='{% static "dictionary/dictionary/images/add_book.png" %}' alt="Add a book">
+	  <div class="carousel-caption">
+		<h3>1. Add a book</h3>
+		<p>Add a book, article or discussion as a source of vocabulary.</p>
+	  </div>
+	</div>
+	<div class="carousel-item">
+	  <img src='{% static "dictionary/dictionary/images/book_list.png" %}' alt="List the books">
+	  <div class="carousel-caption">
+		<h3>2. Select the book</h3>
+		<p>Select the book or any vocabulary source.</p>
+	  </div>
+	</div>
+	<div class="carousel-item">
+	  <img src='{% static "dictionary/dictionary/images/add_word.png" %}' alt="Add a word">
+	  <div class="carousel-caption">
+		<h3>3. Add a word you want to translate</h3>
+		<p>Click on "Add a word".</p>
+	  </div>
+	</div>
+	<div class="carousel-item">
+	  <img src='{% static "dictionary/dictionary/images/word_translate.png" %}' alt="Adding a translation">
+	  <div class="carousel-caption">
+		<h3>4. Add a translation (name, verb, article, expression)</h3>
+		<p>The different type of words can be combined. Example : associate an article with an example of usage (expression).</p>
+	  </div>
+	</div>
+	<div class="carousel-item">
+	  <img src='{% static "dictionary/dictionary/images/quizz.png" %}' alt="Test your knowledge">
+	  <div class="carousel-caption">
+		<h3>5. Click on reviews and take a quizz</h3>
+		<p>Take a quizz to test your knowledge on the words you have entered.</p>
+	  </div>
+	</div>
+  </div>
+
+  <!-- Left and right controls -->
+  <a class="carousel-control-prev" href="#getting-started" data-slide="prev">
+	<span class="carousel-control-prev-icon"></span>
+  </a>
+  <a class="carousel-control-next" href="#getting-started" data-slide="next">
+	<span class="carousel-control-next-icon"></span>
+  </a>
+
+</div>
+<!--
+<br>
+<h2>My statistics (Not available yet)</h2>
+<br>
+<div class="row">
+	<div class="col-md-6">
+		<div class="card text-center ">
+		  <div class="card-header">
+			Activity of the last days
+		  </div>
+		  <div class="card-body">
+			<div>
+				{{ graph|safe }}
+			</div>
+		  </div>
+		</div>
+	</div>	
+	<div class="col-md-6">
+		<div class="card text-center ">
+		  <div class="card-header">
+			Activity of the last days
+		  </div>
+		  <div class="card-body">
+			<div>
+				{{ graphb|safe }}
+			</div>
+		  </div>
+		</div>
+	</div>	
+</div>
+-->
 {% endblock %}

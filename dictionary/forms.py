@@ -86,7 +86,7 @@ class TopicForm(ModelForm):
 
 ORDERING_POLICY = (
     ('random', 'Random'),
-    ('LRU', 'Least Recently used'),
+    ('LRU', 'Least Recently used (Not implemented yet)'),
 )
        
 class QuizzForm(ModelForm):

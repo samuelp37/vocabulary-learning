@@ -6,3 +6,4 @@ whitenoise
 django-heroku
 django-crispy-forms
 factory-boy
+plotly
