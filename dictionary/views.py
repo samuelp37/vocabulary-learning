@@ -390,9 +390,27 @@ class CreateReviewView(LoginRequiredMixin,View):
         
         if ordering_policy=="random":
             translations_list = models.Translation.objects.filter(user=user).all().order_by('?')[:number_questions]
-        elif ordering_policy=="LRU":
-            ordering_policy="LRU"
-            translations_list = models.Translation.objects.filter(user=user).all().order_by('?')[:number_questions]
+        elif ordering_policy=="heuristic":
+            for trs in models.Translation.objects.filter(user=user).all():
+                trs.set_heuristic()
+                print("###########")
+                print("Translation")
+                print(trs)
+                print("Last date")
+                print(trs.last_attempt_days)
+                print("Recent succes rate")
+                print(trs.last_n_success_rate)
+                print("Heuristic")
+                print(trs.heuristic_score)
+                print("########")
+            translations_list = models.Translation.objects.filter(user=user).order_by('-heuristic_score').all()[:number_questions]
+            for trs in translations_list:
+                print("########### Chosen")
+                print("Translation")
+                print(trs)
+                print("Heuristic")
+                print(trs.heuristic_score)
+                print("########")
         else:
             return HttpResponseForbidden('Unauthorized access')
         

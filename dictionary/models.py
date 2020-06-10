@@ -339,6 +339,8 @@ class Translation(models.Model):
     slug = models.SlugField("Slug",max_length=400,default='',null=True,blank=True)
     
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+
+    heuristic_score = models.FloatField("Heuristic score",null=True,blank=True)
     
     @property
     def original_str(self):
@@ -350,6 +352,37 @@ class Translation(models.Model):
             return self.original_verb
         elif self.original_exp:
             return self.original_exp
+        else:
+            return ""
+
+    @property        
+    def last_n_success_rate(self,n_last_attempt=5):
+        last_attempts = QuizzItem.objects.filter(translation=self).order_by("-delivered_on")[0:n_last_attempt]
+        count_last_attempts = last_attempts.count()
+        count_success = 0
+        for attempt in last_attempts:
+            if attempt.success:
+                count_success += 1
+        if count_last_attempts!=0:
+            return count_success/count_last_attempts
+        else:
+            return 0
+
+    @property
+    def last_attempt_days(self,not_used=10000):
+        """
+        Get number of days between now and last success
+        """
+        last_attempts = QuizzItem.objects.filter(translation=self,success=True).order_by("-delivered_on").first()
+        if last_attempts is not None:
+            d1 = last_attempts.delivered_on
+            if d1 is not None:
+                d2 = datetime.datetime.now(datetime.timezone.utc)
+                return abs((d2 - d1).days)
+        return not_used
+
+    def set_heuristic(self,alpha=30,beta=1):
+        self.heuristic_score = alpha*(1-self.last_n_success_rate) + beta*self.last_attempt_days
             
     @property
     def translated_str(self):

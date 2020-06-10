@@ -200,8 +200,8 @@ class TestCreateReviewView(TestCase):
         
     def test_post_create_review_logged_negative_questions(self):
         """
-        TEST : Post the review creation form while being logged
-        Behavior expected : Review created
+        TEST : Post the review creation form while being logged with negqtive number of questions
+        Behavior expected : Review created with the defqult number of questions
         """
 
         # Preparing the request and identify as the user
