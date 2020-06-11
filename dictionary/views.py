@@ -393,6 +393,7 @@ class CreateReviewView(LoginRequiredMixin,View):
         elif ordering_policy=="heuristic":
             for trs in models.Translation.objects.filter(user=user).all():
                 trs.set_heuristic()
+                trs.save()
                 print("###########")
                 print("Translation")
                 print(trs)
