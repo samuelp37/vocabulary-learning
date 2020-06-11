@@ -410,6 +410,10 @@ class CreateReviewView(LoginRequiredMixin,View):
                 print(trs)
                 print("Heuristic")
                 print(trs.heuristic_score)
+                print("Last n dattempts score")
+                print(trs.last_n_success_rate)
+                print("Last day successful attempt")
+                print(trs.last_attempt_days)
                 print("########")
         else:
             return HttpResponseForbidden('Unauthorized access')
