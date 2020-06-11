@@ -364,7 +364,7 @@ class Translation(models.Model):
             if attempt.success:
                 count_success += 1
         if count_last_attempts!=0:
-            return count_success/count_last_attempts
+            return count_success/n_last_attempt
         else:
             return 0
 
