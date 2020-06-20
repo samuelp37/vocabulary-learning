@@ -181,6 +181,9 @@ class CreateUpdateTranslationView(LoginRequiredMixin,AutoCompletionView):
             translation_link.item = self.item
             setattr(translation_link,dict["model_link_attr"],item_support)
             id_translationlink = translation_link.save()
+        trs = self.item
+        trs.set_heuristic()
+        trs.save()
         return HttpResponseRedirect(reverse('details_'+dict["model_link_attr"], kwargs={model_chosen.extern_slug():kwargs[model_chosen.extern_slug()]}))
         
     def redirect_success(self,request,**kwargs):
@@ -391,31 +394,7 @@ class CreateReviewView(LoginRequiredMixin,View):
         if ordering_policy=="random":
             translations_list = models.Translation.objects.filter(user=user).all().order_by('?')[:number_questions]
         elif ordering_policy=="heuristic":
-            for trs in models.Translation.objects.filter(user=user).all():
-                trs.set_heuristic()
-                trs.save()
-                print("###########")
-                print("Translation")
-                print(trs)
-                print("Last date")
-                print(trs.last_attempt_days)
-                print("Recent succes rate")
-                print(trs.last_n_success_rate)
-                print("Heuristic")
-                print(trs.heuristic_score)
-                print("########")
             translations_list = models.Translation.objects.filter(user=user).order_by('-heuristic_score').all()[:number_questions]
-            for trs in translations_list:
-                print("########### Chosen")
-                print("Translation")
-                print(trs)
-                print("Heuristic")
-                print(trs.heuristic_score)
-                print("Last n dattempts score")
-                print(trs.last_n_success_rate)
-                print("Last day successful attempt")
-                print(trs.last_attempt_days)
-                print("########")
         else:
             return HttpResponseForbidden('Unauthorized access')
         
@@ -478,6 +457,10 @@ class QuizzAnalysisReviewItemView(LoginRequiredMixin,AuthorizeAccessDetailView,V
         quizz_item.success = success
         quizz_item.delta_reply = delta_reply_seconds
         quizz_item.save()
+
+        trs = quizz_item.translation
+        trs.set_heuristic()
+        trs.save()
         
         next_quizz_item = quizz.items.all().filter(success=None).first()
         print(next_quizz_item)
