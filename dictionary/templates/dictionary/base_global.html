@@ -28,27 +28,27 @@
 <body>
 	
 	{% block nav %}
-	<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="mainNav">
+	<nav class="navbar navbar-expand navbar-dark bg-primary fixed-top" id="mainNav">
     <div class="container">
-      <div class="collapse navbar-collapse" id="navbarResponsive">
+      <div id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
-		  <li class="nav-item">
+		      <li class="nav-item">
             <a class="nav-link link1" href="{% url 'home_member' %}">Home</a>
           </li>
-		  <li class="nav-item">
+		      <li class="nav-item">
             <a class="nav-link link1" href="{% url 'list_book' %}">Books</a>
           </li>
-		  <li class="nav-item">
+		      <li class="nav-item">
             <a class="nav-link link1" href="{% url 'list_article' %}">Articles</a>
           </li>
-		  <li class="nav-item">
+		      <li class="nav-item">
             <a class="nav-link link1" href="{% url 'list_discussion' %}">Discussions</a>
           </li>
-		  <li class="nav-item">
+		      <li class="nav-item">
             <a class="nav-link link1" href="{% url 'list_reviews' %}">Reviews</a>
           </li>
-		  <li class="nav-item">
-            <a class="nav-link link1" href="{% url 'logout' %}">Log out</a>
+		      <li class="nav-item">
+            <a class="nav-link link1" href="{% url 'logout' %}">Logout</a>
           </li>
         </ul>
       </div>
